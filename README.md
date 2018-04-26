@@ -1,6 +1,6 @@
 # photostationtagdownloader
 
-[![Build Status](https://travis-ci.org/schnatterer/photostationtagdownloader.svg?branch=master)](https://travis-ci.org/schnatterer/photostationtagdownloader)
+[![Build Status](https://travis-ci.org/schnatterer/photostationtagdownloader.svg?branch=develop)](https://travis-ci.org/schnatterer/photostationtagdownloader)
 [![QGate](https://sonarcloud.io/api/project_badges/measure?project=info.schnatterer.photostationtagdownloader&metric=alert_status)](https://sonarcloud.io/dashboard?id=info.schnatterer.photostationtagdownloader)
 [![TecDebt](https://sonarcloud.io/api/project_badges/measure?project=info.schnatterer.photostationtagdownloader&metric=sqale_index)](https://sonarcloud.io/dashboard?id=info.schnatterer.photostationtagdownloader)
 
@@ -8,9 +8,9 @@ Downloads all tagged photos from a [Synology Photo Station](https://www.synology
 
 # Usage
 
-## Local
+## Prebuilt binaries
 
-Get the binary for your specific OS version from [release page](https://github.com/schnatterer/photostationtagdownloader/releases).
+Get the binary for your specific OS from the [release page](https://github.com/schnatterer/photostationtagdownloader/releases).
 
 ```bash
 wget -O pstd https://github.com/schnatterer/photostationtagdownloader/releases/download/0.1.0/pstd-linux-x64`
@@ -29,6 +29,15 @@ You will be prompted for the password.
 
 ```bash
 docker run schnatterer/photostationtagdownloader:0.1.0 --user your-photostation-user --output photos/ http://diskstation
+```
+
+## Node.js
+
+You can also run it with your own node js instance.
+
+```bash
+yarn install
+node src/pstd.js --user your-photostation-user --output photos/ http://diskstation`
 ```
 
 ## Non-interactive password

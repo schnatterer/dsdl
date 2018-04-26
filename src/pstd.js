@@ -44,7 +44,7 @@ function cli() {
     let urlVal = '';
 
     program
-        .version('0.1.0', '-v, --version')
+        .version('0.1.1-SNAPSHOT', '-v, --version')
         .arguments('<url>').action(function (url) {
         urlVal = url
     })

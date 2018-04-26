@@ -13,7 +13,7 @@ Downloads all tagged photos from a [Synology Photo Station](https://www.synology
 Get the binary for your specific OS from the [release page](https://github.com/schnatterer/photostationtagdownloader/releases).
 
 ```bash
-wget -O pstd https://github.com/schnatterer/photostationtagdownloader/releases/download/0.1.0/pstd-linux-x64`
+wget -O pstd https://github.com/schnatterer/photostationtagdownloader/releases/download/0.1.1/pstd-linux-x64`
 chmod +x pstd
 ```
 
@@ -28,7 +28,7 @@ You will be prompted for the password.
 ## Docker
 
 ```bash
-docker run schnatterer/photostationtagdownloader:0.1.0 --user your-photostation-user --output photos/ http://diskstation
+docker run schnatterer/photostationtagdownloader:0.1.1 --user your-photostation-user --output photos/ http://diskstation
 ```
 
 ## Node.js

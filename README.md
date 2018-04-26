@@ -14,14 +14,14 @@ Downloads all tagged photos from a [Synology Photo Station](https://www.synology
 Get the binary for your specific OS from the [release page](https://github.com/schnatterer/photostationtagdownloader/releases).
 
 ```bash
-wget -O pstd https://github.com/schnatterer/photostationtagdownloader/releases/download/0.1.1/pstd-linux-x64`
+wget -O pstd https://github.com/schnatterer/photostationtagdownloader/releases/download/0.1.1/pstd-linux-x64
 chmod +x pstd
 ```
 
 Use it like so:
 
 ```bash
-./pstd --user your-photostation-user --output photos/ http://diskstation`
+./pstd --user your-photostation-user --output photos/ http://diskstation
 ```
 
 You will be prompted for the password.
@@ -38,7 +38,7 @@ You can also run it with your own node js instance.
 
 ```bash
 yarn install
-node src/pstd.js --user your-photostation-user --output photos/ http://diskstation`
+node src/pstd.js --user your-photostation-user --output photos/ http://diskstation
 ```
 
 ## Non-interactive password

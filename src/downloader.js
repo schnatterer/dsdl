@@ -29,7 +29,7 @@ class Downloader {
         if (res.ok) {
             return res.json()
         } else {
-            throw "response not OK, when fetching " + target + ". Status:" + res.status;
+            throw `response not OK, when fetching ${target}. Status: ${res.status}`;
         }
     }
 

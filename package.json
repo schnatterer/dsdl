@@ -5,7 +5,7 @@
   "main": "src/pstd.js",
   "scripts": {
     "package": "node createBinaries.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "author": "Johannes Schnatterer",
   "license": "MIT",
@@ -17,6 +17,14 @@
     "read": "^1.0.7"
   },
   "devDependencies": {
-    "nexe": "^2.0.0-rc.26"
+    "jest": "^22.4.3",
+    "jest-sonar-reporter": "^2.0.0",
+    "nexe": "^2.0.0-rc.26",
+    "nock": "^9.2.5"
+  },
+  "jest": {
+    "collectCoverage": true,
+    "coverageReporters": [ "lcov"],
+    "testResultsProcessor": "jest-sonar-reporter"
   }
 }

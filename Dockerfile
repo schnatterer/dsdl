@@ -6,7 +6,7 @@ RUN apk add --update yarn \
 
 FROM node:9.5.0-alpine
 
-ADD src /
+ADD src /pstd
 COPY --from=build /node_modules /node_modules
 
-ENTRYPOINT ["node", "/pstd.js"]
+ENTRYPOINT ["node", "/pstd/app.js"]

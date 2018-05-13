@@ -38,7 +38,7 @@ You can also run it with your own node js instance.
 
 ```bash
 yarn install
-node src/pstd.js --user your-photostation-user --output photos/ http://diskstation
+node src/app.js --user your-photostation-user --output photos/ http://diskstation
 ```
 
 ## Non-interactive password

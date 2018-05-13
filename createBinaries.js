@@ -4,6 +4,7 @@ const {compile} = require('nexe');
 let nodeVersion = '9.5.0';
 let platforms = ['linux-x64', 'windows-x64', 'mac-x64'];
 
+//  Create specific binaries like so: yarn package alpine-x64
 if (process.argv.length > 2) {
     platforms = [ process.argv[2] ]
 }

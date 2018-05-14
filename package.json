@@ -20,11 +20,14 @@
     "jest": "^22.4.3",
     "jest-sonar-reporter": "^2.0.0",
     "nexe": "^2.0.0-rc.26",
-    "nock": "^9.2.5"
+    "nock": "^9.2.5",
+    "memfs": "2.9.0"
   },
   "jest": {
     "collectCoverage": true,
-    "coverageReporters": [ "lcov"],
+    "coverageReporters": [
+      "lcov"
+    ],
     "testResultsProcessor": "jest-sonar-reporter"
   }
 }

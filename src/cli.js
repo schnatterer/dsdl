@@ -1,7 +1,6 @@
 const program = require('commander');
 const read = require('read');
 const startDate = new Date();
-const fs = require("fs");
 
 const Downloader = require('./downloader.js');
 
@@ -10,19 +9,14 @@ function cli() {
 
     program
         .version('0.1.2-SNAPSHOT', '-v, --version')
-        .arguments('<url>').action(function (url) {
-        urlVal = url
-    })
+        .arguments('<url>').action(function (url) { urlVal = url })
         .option('-u, --user <required>', 'Server user')
         .option('-o, --output <required>', 'Write to this folder')
+        .option('-f, --flat [value]', 'Writes all photos to a single folders. If not set, creates subdirs for each tag', false)
         .parse(process.argv);
 
     if (!program.user || !program.output || !urlVal) {
         program.help()
-    }
-
-    if (!fs.existsSync(program.output)) {
-        fs.mkdirSync(program.output);
     }
 
     read({prompt: 'Password: ', silent: true, terminal: true}, function (er, password) {

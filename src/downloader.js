@@ -1,12 +1,12 @@
 const fetch = require('node-fetch');
 const FormData = require('form-data');
-const fs = require("fs");
+const fs = require('fs');
 const promisePipe = require("promisepipe");
 
 class Downloader {
-    
+
     constructor(url, program) {
-        
+
         this.baseUrl = `${url}/photo/webapi`;
         this.program = program;
         this.photosTotal = 0;
@@ -44,43 +44,53 @@ class Downloader {
     processTags(tags) {
         let promises = [];
 
+        this.createFolderIfNotExists(this.program.output);
+
         tags.forEach(tag => {
             this.tagsTotal++;
             let promise = this.fetchTag(tag)
                 .then(res => this.validatedToJson(res, `tag ${tag.name} (id ${tag.id})`))
-                .then(json => this.processTagResponse(json));
+                .then(json => this.processTagResponse(json, tag));
             promises.push(promise)
         });
 
         return Promise.all(promises)
     }
 
-    processTagResponse(responseJson) {
+    processTagResponse(responseJson, tag) {
         if (responseJson.success) {
-            return this.processPhotos(responseJson.data.items);
+            return this.processPhotos(responseJson.data.items, tag);
         } else {
             throw `Request returned success=false: ${responseJson}`
         }
     }
 
-    async processPhotos(items) {
+    async processPhotos(items, tag) {
         for (const photo of items) {
             this.photosTotal++;
-            let path = this.program.output + photo.info.name;
+
+            let path;
+            if (this.program.flat) {
+                path = `${this.program.output}/${photo.info.name}`;
+            } else {
+                let folder = `${this.program.output}/${tag.name}`;
+                this.createFolderIfNotExists(folder);
+                path = `${folder}/${photo.info.name}`;
+            }
+
             if (fs.existsSync(path)) {
                 console.log(`Skipping file, because it already exists: ${path}`);
                 this.photosSkipped++;
             } else {
                 // Don't open too many connections in parallel
                 await this.fetchPhoto(photo)
-                    .then(res => this.writeToFileIfResponseOk(res, photo));
+                    .then(res => this.writeToFileIfResponseOk(res, photo, path));
             }
         }
     }
 
-    writeToFileIfResponseOk(res, photo) {
+    writeToFileIfResponseOk(res, photo, path) {
         if (res.ok) {
-            let path = this.program.output + photo.info.name;
             console.log('Writing ' + path);
             // Make sure that writing is finished before program exits
             this.photosDownloaded++;
@@ -178,6 +188,12 @@ class Downloader {
         return {
             Cookie: this.cookie
         };
+    }
+
+    createFolderIfNotExists(path) {
+        if (!fs.existsSync(path)) {
+            fs.mkdirSync(path);
+        }
     }
 }
 

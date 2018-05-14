@@ -3,6 +3,7 @@
 [![Build Status](https://travis-ci.org/schnatterer/photostationtagdownloader.svg?branch=develop)](https://travis-ci.org/schnatterer/photostationtagdownloader)
 [![schnatterer/photostationtagdownloader@docker hub](https://images.microbadger.com/badges/image/schnatterer/photostationtagdownloader.svg)](https://hub.docker.com/r/schnatterer/photostationtagdownloader/)
 [![QGate](https://sonarcloud.io/api/project_badges/measure?project=info.schnatterer.photostationtagdownloader&metric=alert_status)](https://sonarcloud.io/dashboard?id=info.schnatterer.photostationtagdownloader)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=info.schnatterer.photostationtagdownloader&metric=coverage)](https://sonarcloud.io/dashboard?id=info.schnatterer.photostationtagdownloader)
 [![TecDebt](https://sonarcloud.io/api/project_badges/measure?project=info.schnatterer.photostationtagdownloader&metric=sqale_index)](https://sonarcloud.io/dashboard?id=info.schnatterer.photostationtagdownloader)
 
 Downloads all tagged photos from a [Synology Photo Station](https://www.synology.com/dsm/feature/photo_station) into a single folder.

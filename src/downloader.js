@@ -96,7 +96,7 @@ class Downloader {
             this.photosDownloaded++;
             return promisePipe(res.body, fs.createWriteStream(path))
         } else {
-            throw "Can't write photo, because response not OK. Status:" + res.status + ". Photo " + photo.info.name + " (id " + photo.info.id + ")";
+            throw `Can't write photo, because response not OK. Status: ${res.status}. Photo: ${photo.info.name} (id ${photo.id})`;
         }
     }
 

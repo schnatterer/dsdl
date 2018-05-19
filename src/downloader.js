@@ -13,6 +13,7 @@ class Downloader {
         this.photosDownloaded = 0;
         this.photosSkipped = 0;
         this.tagsTotal = 0;
+        this.tagsDownloaded = [];
 
         this.cookie = undefined;
     }
@@ -37,7 +38,7 @@ class Downloader {
         if (responseJson.success) {
             return this.processTags(responseJson.data.tags);
         } else {
-            throw `Request returned success=false: ${responseJson}`
+            throw `Fetching all tags returned success=false`
         }
     }
 
@@ -48,20 +49,34 @@ class Downloader {
 
         tags.forEach(tag => {
             this.tagsTotal++;
-            let promise = this.fetchTag(tag)
-                .then(res => this.validatedToJson(res, `tag ${tag.name} (id ${tag.id})`))
-                .then(json => this.processTagResponse(json, tag));
-            promises.push(promise)
+            if (this.allTagsSelected() || this.program.tags.includes(tag.name)) {
+                this.tagsDownloaded.push(tag.name);
+                    let promise = this.fetchTag(tag)
+                        .then(res => this.validatedToJson(res, `tag ${tag.name} (id ${tag.id})`))
+                        .then(json => this.processTagResponse(json, tag));
+                promises.push(promise)
+            }
+        });
+
+        this.program.tags.forEach(tag => {
+            if (!this.tagsDownloaded.includes(tag)) {
+                console.log(`WARNING: Selected tag "${tag}" not found on disk station`)
+            }
         });
 
         return Promise.all(promises)
+    }
+
+    allTagsSelected() {
+        // Not passing any tags is interpreted as all tags
+        return this.program.tags.length === 0;
     }
 
     processTagResponse(responseJson, tag) {
         if (responseJson.success) {
             return this.processPhotos(responseJson.data.items, tag);
         } else {
-            throw `Request returned success=false: ${responseJson}`
+            throw `Fetching tag "${tag.name}" returned success=false`
         }
     }
 

@@ -12,6 +12,7 @@ describe('CLI', () => {
         expect(program.output).toEqual('expectedOutput');
         expect(program.url).toEqual('expectedUrl');
         expect(program.flat).toEqual(false);
+        expect(program.tags).toEqual([]);
     });
 
     // A much more sensible test would be with a child process, as commander is static.

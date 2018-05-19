@@ -12,6 +12,7 @@ function cli() {
         .option('-u, --user <required>', 'Server user')
         .option('-o, --output <required>', 'Write to this folder')
         .option('-f, --flat [value]', 'Writes all photos to a single folders. If not set, creates subdirs for each tag', false)
+        .option('-t, --tags [value]', 'Comma separated list of specific tags to download. If not set, instead loads all tags', commaSeparatedMultiple, [])
         .parse(process.argv);
 
     if (!program.user || !program.output || !program.url) {
@@ -32,6 +33,10 @@ function cli() {
                 process.exit(1)
             });
     });
+}
+
+function commaSeparatedMultiple(val, memo) {
+    return memo.concat(val.split(','));
 }
 
 module.exports = cli;

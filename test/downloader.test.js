@@ -181,7 +181,6 @@ describe("Photos & Tags", () => {
 
 
         test('unsuccessful tag request', () => {
-            mockSuccessfulPhotoDownload(photos);
             mockTagResponse(tags[0], 200, true);
             mockTagResponse(tags[1], 200, false);
 
@@ -192,7 +191,6 @@ describe("Photos & Tags", () => {
         });
 
         test('returns non-2xx code', () => {
-            mockSuccessfulPhotoDownload(photos);
             mockTagResponse(tags[0], 200, true);
             mockTagResponse(tags[1], 500, true);
 
@@ -200,6 +198,41 @@ describe("Photos & Tags", () => {
 
             return downloader.processTags(tags)
                 .catch(e => expect(e).toEqual("response not OK, when fetching tag the other tag (id 2). Status: 500"));
+        });
+    });
+
+    describe("Fetch Tags", () => {
+
+        test('Successful request', async () => {
+            vol.reset();
+            mockSuccessfulPhotoDownload(photos);
+            mockSuccessfulTagResponse(tags);
+            mockFetchedTags(tags, 200, true);
+
+            await downloader.fetchAndProcessTags();
+
+            expect(downloader.tagsTotal).toBe(tags.length);
+            expect(downloader.photosTotal).toBe(2);
+            expect(downloader.photosSkipped).toBe(0);
+            expect(downloader.photosDownloaded).toBe(2);
+        });
+
+        test('unsuccessful request', () => {
+            mockFetchedTags([], 200, false);
+
+            expect.assertions(1);
+
+            return downloader.fetchAndProcessTags()
+                .catch(e => expect(e).toEqual("Fetching all tags returned success=false"));
+        });
+
+        test('returns non-2xx code', () => {
+            mockFetchedTags([], 500, true);
+
+            expect.assertions(1);
+
+            return downloader.fetchAndProcessTags()
+                .catch(e => expect(e).toEqual("response not OK, when fetching all tags. Status: 500"));
         });
     });
 });
@@ -238,4 +271,10 @@ function mockTagResponse(tag, returnCode, responseSuccessful) {
     nock(baseUrl)
         .post(`/photo/webapi/photo.php`, new RegExp(`form-data; name="filter_tag"[^]*${tag.id}`,'m'))
         .reply(returnCode, {success: responseSuccessful, data: {items: tag.photos}});
+}
+
+function mockFetchedTags(tags, returnCode, responseSuccessful) {
+    nock(baseUrl)
+        .post(`/photo/webapi/tag.php`)
+        .reply(returnCode, {success: responseSuccessful, data: {tags: tags}});
 }

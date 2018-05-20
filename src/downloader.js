@@ -21,10 +21,14 @@ class Downloader {
     downloadAllPhotos(password) {
 
         return this.auth(this.program.user, password)
-            .then(() => this.fetchTags()
-                .then(res => this.validatedToJson(res, "all tags"))
-                .then(json => this.processTagsResponse(json)))
+            .then(() => this.fetchAndProcessTags());
     };
+
+    fetchAndProcessTags() {
+        return this.fetchTags()
+            .then(res => this.validatedToJson(res, "all tags"))
+            .then(json => this.processTagsResponse(json));
+    }
 
     validatedToJson(res, target) {
         if (res.ok) {

@@ -6,7 +6,11 @@
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=info.schnatterer.photostationtagdownloader&metric=coverage)](https://sonarcloud.io/dashboard?id=info.schnatterer.photostationtagdownloader)
 [![TecDebt](https://sonarcloud.io/api/project_badges/measure?project=info.schnatterer.photostationtagdownloader&metric=sqale_index)](https://sonarcloud.io/dashboard?id=info.schnatterer.photostationtagdownloader)
 
-Downloads all tagged photos from a [Synology Photo Station](https://www.synology.com/dsm/feature/photo_station) into a single folder.
+Downloads tagged photos (aka "smart albums") from a [Synology Photo Station](https://www.synology.com/dsm/feature/photo_station) into a single folder.
+
+Use Case: 
+* Set tags (i.e. [IPTC keywords](http://www.iptc.org/std/photometadata/documentation/userguide/index.htm#!Documents/generalimagecontent.htm)) for photos, grouping them into albums.
+* photostationtagdownloader downloads those albums for you. For some reasons this cannot be achieved using the Photo Station web app, nor native Android or Windows apps.
 
 # Usage
 
@@ -50,4 +54,10 @@ Note that passwords showing up in the shell history or log files are a potential
 ```bash
 echo "PW" | ./pstd -u ...
 ```
- 
+
+## Options
+
+* `--flat` - downloads all photos of the chosen tags into a single folder
+* `--tags` - downloads specific tags. Note that tags containing spaces must be quoted. Multiple tags can either be specified  
+  * comma separated (e.g. `--tags "tag one",numberTwo`) or
+  * by using multiple parameters (e.g `--tags "tag one" --tags numberTwo`) 

@@ -13,6 +13,6 @@ platforms.forEach(platform => {
     compile({
         input: 'src/app.js',
         target: `${platform}-${nodeVersion}`,
-        name: `pstd-${platform}`
+        name: `dist/pstd-${platform}`
     }).then(() => console.log(`Platform ${platform} success`))
 });

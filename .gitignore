@@ -114,3 +114,4 @@ typings/
 .next
 
 /test-report.xml
+/dist/

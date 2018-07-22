@@ -1,6 +1,6 @@
 const nock = require('nock');
 jest.mock('fs', () => require('memfs').fs);
-const Downloader = require('../src/downloader');
+const PhotoDownloader = require('../src/photoDownloader');
 const vol = require('memfs').vol;
 
 
@@ -11,7 +11,7 @@ const expectedCookie = 'myCookie';
 let downloader;
 
 beforeEach(() => {
-    downloader = new Downloader(baseUrl, {});
+    downloader = new PhotoDownloader(baseUrl, {});
 });
 
 describe("Cookies", () => {

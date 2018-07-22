@@ -2,7 +2,7 @@ const program = require('commander');
 const read = require('read');
 const startDate = new Date();
 
-const Downloader = require('./downloader.js');
+const PhotoDownloader = require('./photoDownloader.js');
 
 function cli() {
 
@@ -20,7 +20,7 @@ function cli() {
     }
 
     read({prompt: 'Password: ', silent: true, terminal: true}, function (er, password) {
-        const downloader = new Downloader(program.url, program);
+        const downloader = new PhotoDownloader(program.url, program);
 
         downloader.downloadAllPhotos(password)
             .then(() => {

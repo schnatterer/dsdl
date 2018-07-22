@@ -3,7 +3,7 @@ const FormData = require('form-data');
 const fs = require('fs');
 const promisePipe = require("promisepipe");
 
-class Downloader {
+class PhotoDownloader {
 
     constructor(url, program) {
 
@@ -216,4 +216,4 @@ class Downloader {
     }
 }
 
-module.exports = Downloader;
+module.exports = PhotoDownloader;

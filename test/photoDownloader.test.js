@@ -255,7 +255,7 @@ function tag(id, name, photos) {
 
 function mockAuthResponse(returnCode, response) {
     nock(baseUrl)
-        .post('/photo/webapi/auth.php')
+        .post('/webapi/auth.php')
         .reply(returnCode, response, {
             'set-cookie': expectedCookie
         });
@@ -263,18 +263,18 @@ function mockAuthResponse(returnCode, response) {
 
 function mockPhotoDownload(photoId, returnCode, response) {
     nock(baseUrl)
-        .get(`/photo/webapi/download.php?api=SYNO.PhotoStation.Download&method=getphoto&version=1&id=${photoId}`)
+        .get(`/webapi/download.php?api=SYNO.PhotoStation.Download&method=getphoto&version=1&id=${photoId}`)
         .reply(returnCode, response);
 }
 
 function mockTagResponse(tag, returnCode, responseSuccessful) {
     nock(baseUrl)
-        .post(`/photo/webapi/photo.php`, new RegExp(`form-data; name="filter_tag"[^]*${tag.id}`,'m'))
+        .post(`/webapi/photo.php`, new RegExp(`form-data; name="filter_tag"[^]*${tag.id}`,'m'))
         .reply(returnCode, {success: responseSuccessful, data: {items: tag.photos}});
 }
 
 function mockFetchedTags(tags, returnCode, responseSuccessful) {
     nock(baseUrl)
-        .post(`/photo/webapi/tag.php`)
+        .post(`/webapi/tag.php`)
         .reply(returnCode, {success: responseSuccessful, data: {tags: tags}});
 }

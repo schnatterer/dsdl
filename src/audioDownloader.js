@@ -1,9 +1,9 @@
 const fetch = require('node-fetch');
-const FormData = require('form-data');
 const fs = require('fs');
 const promisePipe = require('promisepipe');
+const URLSearchParams = require('url').URLSearchParams;
 
-class PhotoDownloader {
+class AudioDownloader {
 
     constructor(url, program) {
 
@@ -41,7 +41,7 @@ class PhotoDownloader {
 
     processTagsResponse(responseJson) {
         if (responseJson.success) {
-            return this.processTags(responseJson.data.tags);
+            return this.processTags(responseJson.data.playlists);
         } else {
             throw `Fetching all tags returned success=false`
         }
@@ -79,7 +79,7 @@ class PhotoDownloader {
 
     processTagResponse(responseJson, tag) {
         if (responseJson.success) {
-            return this.processPhotos(responseJson.data.items, tag);
+            return this.processPhotos(responseJson.data.playlists[0].additional.songs, tag);
         } else {
             throw `Fetching tag "${tag.name}" returned success=false`
         }
@@ -111,7 +111,7 @@ class PhotoDownloader {
     }
 
     createFileName(photo) {
-        return photo.info.name;
+        return photo.path.split('/').pop();
     }
 
     writeToFileIfResponseOk(res, photo, path) {
@@ -126,15 +126,16 @@ class PhotoDownloader {
     }
 
     auth(username, password) {
-        const url = this.baseUrl + '/auth.php';
+        const url = `${this.baseUrl}/auth.cgi`;
         console.log("Trying to fetch " + url);
 
-        let form = new FormData();
-        form.append('api', 'SYNO.PhotoStation.Auth');
-        form.append('method', 'login');
+        let form = new URLSearchParams();
+        form.append('api', 'SYNO.API.Auth');
+        form.append('method', 'Login');
         form.append('version', '1');
-        form.append('username', username);
-        form.append('password', password);
+        form.append('account', username);
+        form.append('passwd', password);
+        form.append('session', 'AudioStation');
 
         return this.postToNas(url, form)
             .then(res => {
@@ -148,50 +149,58 @@ class PhotoDownloader {
     }
 
     fetchTags() {
-        const url = this.baseUrl + '/tag.php';
+        const url = this.baseUrl + '/AudioStation/playlist.cgi';
         console.log("Trying to fetch " + url);
 
-        let form = new FormData();
-        form.append('type', 'desc');
-        form.append('sort_by', 'title');
-        form.append('sort_direction', 'asc');
-        form.append('api', 'SYNO.PhotoStation.Tag');
+        let form = new URLSearchParams();
+        form.append('sort_by', '');
+        form.append('sort_direction', 'ASC');
+        form.append('api', 'SYNO.AudioStation.Playlist');
         form.append('method', 'list');
-        form.append('version', '1');
-        form.append('offset', '0');
-        form.append('thumbnail_status', 'true');
+        form.append('version', '3');
         form.append('limit', '999999999999');
-        form.append('additional', 'info,thumb_size');
+        form.append('library', 'shared');
 
         return this.postToNas(url, form);
     }
 
     fetchTag(tag) {
-        const url = this.baseUrl + '/photo.php';
+        const url = this.baseUrl + '/AudioStation/playlist.cgi';
 
         console.log("Trying to fetch tag " + tag.name + " (id " + tag.id + ") from " + url);
 
-        let form = new FormData();
-        form.append('filter_tag', tag.id);
-        form.append('sort_by', 'filename');
-        form.append('sort_direction', 'asc');
-        form.append('api', 'SYNO.PhotoStation.Photo');
-        form.append('method', 'list');
-        form.append('version', '1');
-        form.append('offset', '0');
-        form.append('limit', '999999999999');
-        form.append('type', 'photo,video');
-        form.append('additional', 'photo_exif,video_codec,video_quality,thumb_size');
+        let form = new URLSearchParams();
+        form.append('method', 'getinfo');
+        form.append('limit', '1000000');
+        form.append('api', 'SYNO.AudioStation.Playlist');
+        form.append('id', tag.id);
+        // songs_song_audio = kbps etc
+        // songs_song_rating
+        // sharing_info
+        // songs_song_tag Artist name and such
+        form.append('additional', 'songs_song_tag');
+        form.append('sort_by', '');
+        form.append('sort_direction', 'ASC');
+        form.append('version', '3');
+        form.append('library', tag.library);
 
         return this.postToNas(url, form);
     }
 
     fetchPhoto(photo) {
 
-        const url = `${this.baseUrl}/download.php?api=SYNO.PhotoStation.Download&method=getphoto&version=1&id=${photo.id}`;
+        const url = `${this.baseUrl}/AudioStation/download.cgi`;
+
+        let form = new URLSearchParams();
+        form.append('filename', '');
+        form.append('api', 'SYNO.AudioStation.Download');
+        form.append('version', '1');
+        form.append('method', 'download');
+        form.append('songs', photo.id);
+
         console.log(`Trying to fetch photo ${this.createFileName(photo)} from ${url}`);
 
-        return this.getFromNas(url)
+        return this.postToNas(url, form);
     }
 
     getFromNas(url) {
@@ -222,4 +231,4 @@ class PhotoDownloader {
     }
 }
 
-module.exports = PhotoDownloader;
+module.exports = AudioDownloader;

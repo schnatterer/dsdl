@@ -1,9 +1,13 @@
 const fetch = require('node-fetch');
 const fs = require('fs');
 const promisePipe = require('promisepipe');
+// Needed for node < 10
 const URLSearchParams = require('url').URLSearchParams;
 
 class AudioDownloader {
+
+    //TODO: Extract and parameterize downloader and use for photos and audio
+    // - Errors: Use file and list instead of photo and tag
 
     constructor(url, program) {
 
@@ -153,11 +157,11 @@ class AudioDownloader {
         console.log("Trying to fetch " + url);
 
         let form = new URLSearchParams();
+        form.append('method', 'list');
+        form.append('api', 'SYNO.AudioStation.Playlist');
+        form.append('version', '3');
         form.append('sort_by', '');
         form.append('sort_direction', 'ASC');
-        form.append('api', 'SYNO.AudioStation.Playlist');
-        form.append('method', 'list');
-        form.append('version', '3');
         form.append('limit', '999999999999');
         form.append('library', 'shared');
 
@@ -170,10 +174,12 @@ class AudioDownloader {
         console.log("Trying to fetch tag " + tag.name + " (id " + tag.id + ") from " + url);
 
         let form = new URLSearchParams();
-        form.append('method', 'getinfo');
-        form.append('limit', '1000000');
-        form.append('api', 'SYNO.AudioStation.Playlist');
         form.append('id', tag.id);
+        form.append('library', tag.library);
+        form.append('method', 'getinfo');
+        form.append('api', 'SYNO.AudioStation.Playlist');
+        form.append('version', '3');
+        form.append('limit', '1000000');
         // songs_song_audio = kbps etc
         // songs_song_rating
         // sharing_info
@@ -181,8 +187,6 @@ class AudioDownloader {
         form.append('additional', 'songs_song_tag');
         form.append('sort_by', '');
         form.append('sort_direction', 'ASC');
-        form.append('version', '3');
-        form.append('library', tag.library);
 
         return this.postToNas(url, form);
     }
@@ -192,11 +196,11 @@ class AudioDownloader {
         const url = `${this.baseUrl}/AudioStation/download.cgi`;
 
         let form = new URLSearchParams();
-        form.append('filename', '');
+        form.append('songs', photo.id);
+        form.append('method', 'download');
         form.append('api', 'SYNO.AudioStation.Download');
         form.append('version', '1');
-        form.append('method', 'download');
-        form.append('songs', photo.id);
+        form.append('filename', '');
 
         console.log(`Trying to fetch photo ${this.createFileName(photo)} from ${url}`);
 

@@ -26,15 +26,16 @@ function cli() {
     read({prompt: 'Password: ', silent: true, terminal: true}, function (er, password) {
         let downloader;
         if (program.audio) {
-            downloader = new AudioDownloader(program.url, program);
+            downloader = new AudioDownloader(program);
         } else {
-            downloader = new PhotoDownloader(program.url, program);
+            downloader = new PhotoDownloader(program);
         }
 
         downloader.downloadAllPhotos(password)
             .then(() => {
-                console.log(`Processed ${downloader.tagsTotal} tags, containing ${downloader.photosTotal} photos ` +
-                    `(downloaded ${downloader.photosDownloaded}, skipped ${downloader.photosSkipped}) in ${(new Date() - startDate) / 1000}s`);
+                const stats = downloader.downloadService;
+                console.log(`Processed ${stats.tagsTotal} tags, containing ${stats.photosTotal} photos ` +
+                    `(downloaded ${stats.photosDownloaded}, skipped ${stats.photosSkipped}) in ${(new Date() - startDate) / 1000}s`);
                 process.exit()
             })
             .catch(err => {

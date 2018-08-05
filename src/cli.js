@@ -31,7 +31,7 @@ function cli() {
             downloader = new PhotoDownloader(program);
         }
 
-        downloader.downloadAllPhotos(password)
+        downloader.downloadAllFiles(password)
             .then(() => {
                 const stats = downloader.downloadService;
                 console.log(`Processed ${stats.tagsTotal} tags, containing ${stats.photosTotal} photos ` +

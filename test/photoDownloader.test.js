@@ -11,7 +11,6 @@ const expectedCookie = 'myCookie';
 let downloader;
 const password = 'dontCare';
 
-
 beforeEach(() => {
     const program = {
         url: baseUrl,
@@ -27,7 +26,7 @@ describe("Authentication", () => {
 
         expect.assertions(1);
 
-        return expect(downloader.downloadAllPhotos(password))
+        return expect(downloader.downloadAllFiles(password))
             .rejects.toEqual('Authentication failed');
     });
 
@@ -37,7 +36,7 @@ describe("Authentication", () => {
 
         expect.assertions(1);
 
-        return expect(downloader.downloadAllPhotos(password))
+        return expect(downloader.downloadAllFiles(password))
             .rejects.toEqual('response not OK, when fetching auth. Status: ' + returnCode);
     });
 
@@ -81,7 +80,7 @@ describe("Photos & Tags", () => {
             mockSuccessfulTagResponse(tags);
             mockFetchedTags(tags, 200, true);
 
-            await downloader.downloadAllPhotos(password);
+            await downloader.downloadAllFiles(password);
 
             photos.forEach((photo) =>
                 expect(vol.readFileSync(`/folder/${tags[0].name}/${photo.info.name}`, {encoding: 'ascii'})).toEqual(photo.data));
@@ -97,7 +96,7 @@ describe("Photos & Tags", () => {
             mockSuccessfulPhotoDownload(photos);
             downloader.downloadService.flat = true;
 
-            await downloader.downloadAllPhotos(password);
+            await downloader.downloadAllFiles(password);
 
             photos.forEach((photo) =>
                 expect(vol.readFileSync(`/folder/${photo.info.name}`, {encoding: 'ascii'})).toEqual(photo.data));
@@ -115,7 +114,7 @@ describe("Photos & Tags", () => {
             vol.mkdirSync(`/folder/${tags[0].name}`);
             vol.writeFileSync(`/folder/${tags[0].name}/${photos[0].info.name}`, 'some other data', {encoding: 'ascii'});
 
-            await downloader.downloadAllPhotos(password);
+            await downloader.downloadAllFiles(password);
 
             expect(vol.readFileSync(`/folder/${tags[0].name}/${photos[0].info.name}`, {encoding: 'ascii'})).toEqual('some other data');
             expect(downloader.downloadService.filesTotal).toBe(2);
@@ -132,7 +131,7 @@ describe("Photos & Tags", () => {
 
             expect.assertions(1);
 
-            return expect(downloader.downloadAllPhotos(password))
+            return expect(downloader.downloadAllFiles(password))
                 .rejects.toEqual("Can't write photo, because response not OK. Status: 500. Photo: one.jpg (id 1)");
         });
 
@@ -145,7 +144,7 @@ describe("Photos & Tags", () => {
             mockSuccessfulPhotoDownload(photos);
             mockSuccessfulTagResponse(tags);
 
-            await downloader.downloadAllPhotos(password);
+            await downloader.downloadAllFiles(password);
 
             tags.forEach((tag) =>
                 tag.photos.forEach((photo) =>
@@ -168,7 +167,7 @@ describe("Photos & Tags", () => {
 
             downloader.downloadService.listsToDownload = [expectedTag.name];
 
-            await downloader.downloadAllPhotos(password);
+            await downloader.downloadAllFiles(password);
 
             expectedTag.photos.forEach((photo) =>
                     expect(vol.readFileSync(`/folder/${expectedTag.name}/${photo.info.name}`, {encoding: 'ascii'})).toEqual(photo.data));
@@ -187,7 +186,7 @@ describe("Photos & Tags", () => {
 
             downloader.downloadService.listsToDownload = ['not existing'];
 
-            await downloader.downloadAllPhotos(password);
+            await downloader.downloadAllFiles(password);
 
             expect(downloader.downloadService.listsTotal).toBe(tags.length);
             expect(downloader.downloadService.filesTotal).toBe(0);
@@ -205,7 +204,7 @@ describe("Photos & Tags", () => {
 
             expect.assertions(1);
 
-            return downloader.downloadAllPhotos(password)
+            return downloader.downloadAllFiles(password)
                 .catch(e => expect(e).toEqual("Fetching tag \"the other tag\" returned success=false"));
         });
 
@@ -219,7 +218,7 @@ describe("Photos & Tags", () => {
 
             expect.assertions(1);
 
-            return downloader.downloadAllPhotos(password)
+            return downloader.downloadAllFiles(password)
                 .catch(e => expect(e).toEqual("response not OK, when fetching tag \"the other tag\" (id 2). Status: 500"));
         });
     });
@@ -232,7 +231,7 @@ describe("Photos & Tags", () => {
             mockSuccessfulTagResponse(tags);
             mockFetchedTags(tags, 200, true);
 
-            await downloader.downloadAllPhotos(password);
+            await downloader.downloadAllFiles(password);
 
             expect(downloader.downloadService.listsTotal).toBe(tags.length);
             expect(downloader.downloadService.filesTotal).toBe(2);
@@ -245,7 +244,7 @@ describe("Photos & Tags", () => {
 
             expect.assertions(1);
 
-            return downloader.downloadAllPhotos(password)
+            return downloader.downloadAllFiles(password)
                 .catch(e => expect(e).toEqual("Fetching all tags returned success=false"));
         });
 
@@ -254,7 +253,7 @@ describe("Photos & Tags", () => {
 
             expect.assertions(1);
 
-            return downloader.downloadAllPhotos(password)
+            return downloader.downloadAllFiles(password)
                 .catch(e => expect(e).toEqual("response not OK, when fetching all tags. Status: 500"));
         });
     });

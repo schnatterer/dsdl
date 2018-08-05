@@ -3,8 +3,6 @@ const DownloadService = require('./downloadService.js');
 
 class PhotoDownloader {
 
-    // TODO rename methods to reflect new use case.
-
     constructor(program) {
 
         this.downloadService = new DownloadService({
@@ -17,28 +15,28 @@ class PhotoDownloader {
             listType: 'tag',
 
             authUrl: 'auth.php',
-            createAuthBody: this.auth,
+            createAuthBody: this.createAuthBody,
 
             fetchListsUrl: 'tag.php',
-            createFetchListsBody: this.fetchTags,
-            findListInListsResponse: this.processTagsResponse,
+            createFetchListsBody: this.createFetchListsBody,
+            findListInListsResponse: this.findListInListsResponse,
 
             fetchListUrl: 'photo.php',
-            createFetchListBody: this.fetchTag,
-            findFilesInListResponse: this.processTagResponse,
+            createFetchListBody: this.createFetchListBody,
+            findFilesInListResponse: this.findFilesInListResponse,
 
             createFileName: this.createFileName,
 
             fetchFileUrl: 'download.php',
-            createFetchFileBody : this.fetchPhoto
+            createFetchFileBody: this.createFetchFileBody
         })
     }
 
-    downloadAllPhotos(password) {
+    downloadAllFiles(password) {
         return this.downloadService.downloadAllFiles(password);
     };
 
-    auth(username, password) {
+    createAuthBody(username, password) {
 
         let form = new FormData();
         form.append('api', 'SYNO.PhotoStation.Auth');
@@ -50,11 +48,11 @@ class PhotoDownloader {
         return form;
     }
 
-    processTagsResponse(responseJson) {
+    findListInListsResponse(responseJson) {
         return responseJson.data.tags;
     }
 
-    processTagResponse(responseJson) {
+    findFilesInListResponse(responseJson) {
         return responseJson.data.items;
     }
 
@@ -62,7 +60,7 @@ class PhotoDownloader {
         return photo.info.name;
     }
 
-    fetchTags() {
+    createFetchListsBody() {
         let form = new FormData();
         form.append('type', 'desc');
         form.append('sort_by', 'title');
@@ -78,7 +76,7 @@ class PhotoDownloader {
         return form;
     }
 
-    fetchTag(tag) {
+    createFetchListBody(tag) {
         let form = new FormData();
         form.append('filter_tag', tag.id);
         form.append('sort_by', 'filename');
@@ -94,7 +92,7 @@ class PhotoDownloader {
         return form;
     }
 
-    fetchPhoto(photo) {
+    createFetchFileBody(photo) {
         let form = new FormData();
         form.append('id', photo.id);
         form.append('method', 'getphoto');

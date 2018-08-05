@@ -26,7 +26,7 @@ describe("Authentication", () => {
 
         expect.assertions(1);
 
-        return expect(downloader.downloadAllPhotos(password))
+        return expect(downloader.downloadAllFiles(password))
             .rejects.toEqual('Authentication failed');
     });
 
@@ -36,7 +36,7 @@ describe("Authentication", () => {
 
         expect.assertions(1);
 
-        return expect(downloader.downloadAllPhotos(password))
+        return expect(downloader.downloadAllFiles(password))
             .rejects.toEqual('response not OK, when fetching auth. Status: ' + returnCode);
     });
 
@@ -82,7 +82,7 @@ describe("Songs & Playlists", () => {
             mockSuccessfulTagResponse(playlists);
             mockFetchedPlaylists(playlists, 200, true);
 
-            await downloader.downloadAllPhotos(password);
+            await downloader.downloadAllFiles(password);
 
             songs.forEach((song) =>
                 expect(vol.readFileSync(`/folder/${playlists[0].name}/${song.name}`, {encoding: 'ascii'})).toEqual(song.data));
@@ -98,7 +98,7 @@ describe("Songs & Playlists", () => {
             mockSuccessfulSongDownload(songs);
             downloader.downloadService.flat = true;
 
-            await downloader.downloadAllPhotos(password);
+            await downloader.downloadAllFiles(password);
 
             songs.forEach((song) =>
                 expect(vol.readFileSync(`/folder/${song.name}`, {encoding: 'ascii'})).toEqual(song.data));
@@ -116,7 +116,7 @@ describe("Songs & Playlists", () => {
             vol.mkdirSync(`/folder/${playlists[0].name}`);
             vol.writeFileSync(`/folder/${playlists[0].name}/${songs[0].name}`, 'some other data', {encoding: 'ascii'});
 
-            await downloader.downloadAllPhotos(password);
+            await downloader.downloadAllFiles(password);
 
             expect(vol.readFileSync(`/folder/${playlists[0].name}/${songs[0].name}`, {encoding: 'ascii'})).toEqual('some other data');
             expect(downloader.downloadService.filesTotal).toBe(2);
@@ -133,7 +133,7 @@ describe("Songs & Playlists", () => {
 
             expect.assertions(1);
 
-            return expect(downloader.downloadAllPhotos(password))
+            return expect(downloader.downloadAllFiles(password))
                 .rejects.toEqual("Can't write photo, because response not OK. Status: 500. Photo: one.mp3 (id 1)");
         });
 
@@ -147,7 +147,7 @@ describe("Songs & Playlists", () => {
             mockSuccessfulSongDownload(songs);
             mockSuccessfulTagResponse(playlists);
 
-            await downloader.downloadAllPhotos(password);
+            await downloader.downloadAllFiles(password);
 
             playlists.forEach((playlist) =>
                 playlist.songs.forEach((song) =>
@@ -170,7 +170,7 @@ describe("Songs & Playlists", () => {
 
             downloader.downloadService.listsToDownload = [expectedPlaylist.name];
 
-            await downloader.downloadAllPhotos(password);
+            await downloader.downloadAllFiles(password);
 
             expectedPlaylist.songs.forEach((song) =>
                     expect(vol.readFileSync(`/folder/${expectedPlaylist.name}/${song.name}`, {encoding: 'ascii'})).toEqual(song.data));
@@ -189,7 +189,7 @@ describe("Songs & Playlists", () => {
 
             downloader.downloadService.listsToDownload = ['not existing'];
 
-            await downloader.downloadAllPhotos(password);
+            await downloader.downloadAllFiles(password);
 
             expect(downloader.downloadService.listsTotal).toBe(playlists.length);
             expect(downloader.downloadService.filesTotal).toBe(0);
@@ -207,7 +207,7 @@ describe("Songs & Playlists", () => {
 
             expect.assertions(1);
 
-            return downloader.downloadAllPhotos(password)
+            return downloader.downloadAllFiles(password)
                 .catch(e => expect(e).toEqual("Fetching playlist \"the other playlist\" returned success=false"));
         });
 
@@ -220,7 +220,7 @@ describe("Songs & Playlists", () => {
 
             expect.assertions(1);
 
-            return downloader.downloadAllPhotos(password)
+            return downloader.downloadAllFiles(password)
                 .catch(e => expect(e).toEqual("response not OK, when fetching playlist \"the other playlist\" (id 2). Status: 500"));
         });
     });
@@ -233,7 +233,7 @@ describe("Songs & Playlists", () => {
             mockSuccessfulTagResponse(playlists);
             mockFetchedPlaylists(playlists, 200, true);
 
-            await downloader.downloadAllPhotos(password);
+            await downloader.downloadAllFiles(password);
 
             expect(downloader.downloadService.listsTotal).toBe(playlists.length);
             expect(downloader.downloadService.filesTotal).toBe(2);
@@ -246,7 +246,7 @@ describe("Songs & Playlists", () => {
 
             expect.assertions(1);
 
-            return downloader.downloadAllPhotos(password)
+            return downloader.downloadAllFiles(password)
                 .catch(e => expect(e).toEqual("Fetching all playlists returned success=false"));
         });
 
@@ -255,7 +255,7 @@ describe("Songs & Playlists", () => {
 
             expect.assertions(1);
 
-            return downloader.downloadAllPhotos(password)
+            return downloader.downloadAllFiles(password)
                 .catch(e => expect(e).toEqual("response not OK, when fetching all playlists. Status: 500"));
         });
     });

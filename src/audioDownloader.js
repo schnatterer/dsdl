@@ -1,10 +1,8 @@
 // Needed for node < 10
-const URLSearchParams = require('url').URLSearchParams
+const URLSearchParams = require('url').URLSearchParams;
 const DownloadService = require('./downloadService.js');
 
 class AudioDownloader {
-
-    // TODO rename methods to reflect new use case. No more tags and photos!
 
     constructor(program) {
 
@@ -18,40 +16,40 @@ class AudioDownloader {
             listType: 'playlist',
 
             authUrl: 'auth.cgi',
-            createAuthBody: this.auth,
+            createAuthBody: this.createAuthBody,
 
             fetchListsUrl: 'AudioStation/playlist.cgi',
-            createFetchListsBody: this.fetchTags,
-            findListInListsResponse: this.processTagsResponse,
+            createFetchListsBody: this.createFetchListsBody,
+            findListInListsResponse: this.findListInListsResponse,
 
             fetchListUrl: 'AudioStation/playlist.cgi',
-            createFetchListBody: this.fetchTag,
-            findFilesInListResponse: this.processTagResponse,
+            createFetchListBody: this.createFetchListBody,
+            findFilesInListResponse: this.findFilesInListResponse,
 
             createFileName: this.createFileName,
 
             fetchFileUrl: 'AudioStation/download.cgi',
-            createFetchFileBody : this.fetchPhoto
+            createFetchFileBody: this.createFetchFileBody
         })
     }
 
-    downloadAllPhotos(password) {
+    downloadAllFiles(password) {
         return this.downloadService.downloadAllFiles(password);
     };
 
-    processTagsResponse(responseJson) {
+    findListInListsResponse(responseJson) {
         return responseJson.data.playlists;
     }
 
-    processTagResponse(responseJson) {
+    findFilesInListResponse(responseJson) {
         return responseJson.data.playlists[0].additional.songs
     }
 
-    createFileName(photo) {
-        return photo.path.split('/').pop();
+    createFileName(song) {
+        return song.path.split('/').pop();
     }
 
-    auth(username, password) {
+    createAuthBody(username, password) {
 
         let form = new URLSearchParams();
         form.append('api', 'SYNO.API.Auth');
@@ -64,7 +62,7 @@ class AudioDownloader {
         return form;
     }
 
-    fetchTags() {
+    createFetchListsBody() {
 
         let form = new URLSearchParams();
         form.append('method', 'list');
@@ -78,11 +76,11 @@ class AudioDownloader {
         return form;
     }
 
-    fetchTag(tag) {
+    createFetchListBody(playlist) {
 
         let form = new URLSearchParams();
-        form.append('id', tag.id);
-        form.append('library', tag.library);
+        form.append('id', playlist.id);
+        form.append('library', playlist.library);
         form.append('method', 'getinfo');
         form.append('api', 'SYNO.AudioStation.Playlist');
         form.append('version', '3');
@@ -98,10 +96,10 @@ class AudioDownloader {
         return form;
     }
 
-    fetchPhoto(photo) {
+    createFetchFileBody(song) {
 
         let form = new URLSearchParams();
-        form.append('songs', photo.id);
+        form.append('songs', song.id);
         form.append('method', 'download');
         form.append('api', 'SYNO.AudioStation.Download');
         form.append('version', '1');

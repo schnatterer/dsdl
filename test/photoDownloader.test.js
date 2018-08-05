@@ -263,7 +263,7 @@ function mockAuthResponse(returnCode, response) {
 
 function mockPhotoDownload(photoId, returnCode, response) {
     nock(baseUrl)
-        .get(`/webapi/download.php?api=SYNO.PhotoStation.Download&method=getphoto&version=1&id=${photoId}`)
+        .post(`/webapi/download.php`, new RegExp(`form-data; name="id"[^]*${photoId}`,'m'))
         .reply(returnCode, response);
 }
 

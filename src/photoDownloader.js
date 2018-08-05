@@ -188,10 +188,16 @@ class PhotoDownloader {
 
     fetchPhoto(photo) {
 
-        const url = `${this.baseUrl}/download.php?api=SYNO.PhotoStation.Download&method=getphoto&version=1&id=${photo.id}`;
+        const url = `${this.baseUrl}/download.php`;
         console.log(`Trying to fetch photo ${this.createFileName(photo)} from ${url}`);
 
-        return this.getFromNas(url)
+        let form = new FormData();
+        form.append('id', photo.id);
+        form.append('method', 'getphoto');
+        form.append('api', 'SYNO.PhotoStation.Download');
+        form.append('version', '1');
+
+        return this.postToNas(url, form);
     }
 
     getFromNas(url) {

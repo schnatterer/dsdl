@@ -1,11 +1,13 @@
 const FormData = require('form-data');
-const SynologyDownloadService = require('./downloadService.js');
+const DownloadService = require('./downloadService.js');
 
 class PhotoDownloader {
 
+    // TODO rename methods to reflect new use case.
+
     constructor(program) {
 
-        this.downloadService = new SynologyDownloadService({
+        this.downloadService = new DownloadService({
             url: program.url,
             output: program.output,
             flat: program.flat,

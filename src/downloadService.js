@@ -2,7 +2,7 @@ const fetch = require('node-fetch');
 const fs = require('fs');
 const promisePipe = require('promisepipe');
 
-class SynologyDownloadService {
+class DownloadService {
 
     constructor(params) {
 
@@ -208,4 +208,4 @@ class SynologyDownloadService {
     }
 }
 
-module.exports = SynologyDownloadService;
+module.exports = DownloadService;

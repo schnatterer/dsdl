@@ -1,12 +1,14 @@
 // Needed for node < 10
 const URLSearchParams = require('url').URLSearchParams
-const SynologyDownloadService = require('./downloadService.js');
+const DownloadService = require('./downloadService.js');
 
 class AudioDownloader {
 
+    // TODO rename methods to reflect new use case. No more tags and photos!
+
     constructor(program) {
 
-        this.downloadService = new SynologyDownloadService({
+        this.downloadService = new DownloadService({
             url: program.url,
             output: program.output,
             flat: program.flat,

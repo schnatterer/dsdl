@@ -6,6 +6,8 @@ class AudioDownloader {
 
     constructor(program) {
 
+        this.listType = 'playlist';
+
         this.downloadService = new DownloadService({
             url: program.url,
             output: program.output,
@@ -13,7 +15,7 @@ class AudioDownloader {
             listsToDownload: program.tags,
             user: program.user,
 
-            listType: 'playlist',
+            listType: this.listType,
 
             authUrl: 'auth.cgi',
             createAuthBody: this.createAuthBody,

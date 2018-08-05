@@ -1,4 +1,5 @@
 const fetch = require('node-fetch');
+const FormData = require('form-data');
 const fs = require('fs');
 const promisePipe = require('promisepipe');
 
@@ -14,34 +15,29 @@ class DownloadService {
 
 
         this.listType = params.listType;
-        // e.g auth.php
         this.authUrl = params.authUrl;
         this.createAuthBody = params.createAuthBody;
 
-        // e.g tag.php'
         this.fetchListsUrl = params.fetchListsUrl;
         this.createFetchListsBody = params.createFetchListsBody;
-        // responseJson.data.tags
         this.findListInListsResponse = params.findListInListsResponse;
 
-        // e.g photo.php'
         this.fetchListUrl = params.fetchListUrl;
         this.createFetchListBody = params.createFetchListBody;
-        // responseJson.data.items
         this.findFilesInListResponse = params.findFilesInListResponse;
 
         this.createFileName = params.createFileName;
 
-        // download.php
         this.fetchFileUrl = params.fetchFileUrl;
         this.createFetchFileBody = params.createFetchFileBody;
 
-        // TODO move to stats object and return from downloadAllFiles()
-        this.filesTotal = 0;
-        this.filesDownloaded = 0;
-        this.filesSkipped = 0;
-        this.listsTotal = 0;
-        this.listsDownloaded = [];
+        this.stats = {
+            filesTotal : 0,
+            filesDownloaded : 0,
+            filesSkipped : 0,
+            listsTotal : 0,
+            listsDownloaded : []
+        };
 
         this.cookie = undefined;
     }
@@ -49,9 +45,9 @@ class DownloadService {
     downloadAllFiles(password) {
 
         return this.auth(this.user, password)
-            .then(() => this.fetchAndProcessLists());
+            .then(() => this.fetchAndProcessLists())
+            .then(() => this.stats)
     };
-
 
     auth(username, password) {
         const url = `${this.baseUrl}/${this.authUrl}`;
@@ -96,9 +92,9 @@ class DownloadService {
         this.createFolderIfNotExists(this.output);
 
         lists.forEach(list => {
-            this.listsTotal++;
+            this.stats.listsTotal++;
             if (this.allListsSelected() || this.listsToDownload.includes(list.name)) {
-                this.listsDownloaded.push(list.name);
+                this.stats.listsDownloaded.push(list.name);
                 let promise = this.fetchList(list)
                     .then(res => this.validatedToJson(res, `${this.listType} "${list.name}" (id ${list.id})`))
                     .then(json => this.processListResponse(json, list));
@@ -107,7 +103,7 @@ class DownloadService {
         });
 
         this.listsToDownload.forEach(list => {
-            if (!this.listsDownloaded.includes(list)) {
+            if (!this.stats.listsDownloaded.includes(list)) {
                 console.log(`WARNING: Selected ${this.listType} "${list}" not found on disk station`)
             }
         });
@@ -130,7 +126,7 @@ class DownloadService {
 
     async processFiles(files, list) {
         for (const file of files) {
-            this.filesTotal++;
+            this.stats.filesTotal++;
 
             let path;
             const fileName = this.createFileName(file);
@@ -144,7 +140,7 @@ class DownloadService {
 
             if (fs.existsSync(path)) {
                 console.log(`Skipping file, because it already exists: ${path}`);
-                this.filesSkipped++;
+                this.stats.filesSkipped++;
             } else {
                 // Don't open too many connections in parallel
                 await this.fetchFile(file)
@@ -157,7 +153,7 @@ class DownloadService {
         if (res.ok) {
             console.log('Writing ' + path);
             // Make sure that writing is finished before program exits
-            this.filesDownloaded++;
+            this.stats.filesDownloaded++;
             return promisePipe(res.body, fs.createWriteStream(path))
         } else {
             throw `Can't write photo, because response not OK. Status: ${res.status}. Photo: ${this.createFileName(photo)} (id ${photo.id})`;

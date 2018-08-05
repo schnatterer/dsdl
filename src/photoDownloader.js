@@ -5,6 +5,8 @@ class PhotoDownloader {
 
     constructor(program) {
 
+        this.listType = 'tag';
+
         this.downloadService = new DownloadService({
             url: program.url,
             output: program.output,
@@ -12,7 +14,7 @@ class PhotoDownloader {
             listsToDownload: program.tags,
             user: program.user,
 
-            listType: 'tag',
+            listType: this.listType,
 
             authUrl: 'auth.php',
             createAuthBody: this.createAuthBody,

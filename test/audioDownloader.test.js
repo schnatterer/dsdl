@@ -82,13 +82,13 @@ describe("Songs & Playlists", () => {
             mockSuccessfulTagResponse(playlists);
             mockFetchedPlaylists(playlists, 200, true);
 
-            await downloader.downloadAllFiles(password);
+            const stats = await downloader.downloadAllFiles(password);
 
             songs.forEach((song) =>
                 expect(vol.readFileSync(`/folder/${playlists[0].name}/${song.name}`, {encoding: 'ascii'})).toEqual(song.data));
-            expect(downloader.downloadService.filesTotal).toBe(songs.length);
-            expect(downloader.downloadService.filesDownloaded).toBe(songs.length);
-            expect(downloader.downloadService.filesSkipped).toBe(0);
+            expect(stats.filesTotal).toBe(songs.length);
+            expect(stats.filesDownloaded).toBe(songs.length);
+            expect(stats.filesSkipped).toBe(0);
         });
 
         test('flat folder', async () => {
@@ -98,13 +98,13 @@ describe("Songs & Playlists", () => {
             mockSuccessfulSongDownload(songs);
             downloader.downloadService.flat = true;
 
-            await downloader.downloadAllFiles(password);
+            const stats = await downloader.downloadAllFiles(password);
 
             songs.forEach((song) =>
                 expect(vol.readFileSync(`/folder/${song.name}`, {encoding: 'ascii'})).toEqual(song.data));
-            expect(downloader.downloadService.filesTotal).toBe(songs.length);
-            expect(downloader.downloadService.filesDownloaded).toBe(songs.length);
-            expect(downloader.downloadService.filesSkipped).toBe(0);
+            expect(stats.filesTotal).toBe(songs.length);
+            expect(stats.filesDownloaded).toBe(songs.length);
+            expect(stats.filesSkipped).toBe(0);
         });
 
         test('skip existing', async () => {
@@ -116,12 +116,12 @@ describe("Songs & Playlists", () => {
             vol.mkdirSync(`/folder/${playlists[0].name}`);
             vol.writeFileSync(`/folder/${playlists[0].name}/${songs[0].name}`, 'some other data', {encoding: 'ascii'});
 
-            await downloader.downloadAllFiles(password);
+            const stats = await downloader.downloadAllFiles(password);
 
             expect(vol.readFileSync(`/folder/${playlists[0].name}/${songs[0].name}`, {encoding: 'ascii'})).toEqual('some other data');
-            expect(downloader.downloadService.filesTotal).toBe(2);
-            expect(downloader.downloadService.filesDownloaded).toBe(1);
-            expect(downloader.downloadService.filesSkipped).toBe(1);
+            expect(stats.filesTotal).toBe(2);
+            expect(stats.filesDownloaded).toBe(1);
+            expect(stats.filesSkipped).toBe(1);
         });
 
         test('returns non-2xx code', () => {
@@ -147,16 +147,16 @@ describe("Songs & Playlists", () => {
             mockSuccessfulSongDownload(songs);
             mockSuccessfulTagResponse(playlists);
 
-            await downloader.downloadAllFiles(password);
+            const stats = await downloader.downloadAllFiles(password);
 
             playlists.forEach((playlist) =>
                 playlist.songs.forEach((song) =>
                     expect(vol.readFileSync(`/folder/${playlist.name}/${song.name}`, {encoding: 'ascii'})).toEqual(song.data)));
 
-            expect(downloader.downloadService.listsTotal).toBe(playlists.length);
-            expect(downloader.downloadService.filesTotal).toBe(2);
-            expect(downloader.downloadService.filesDownloaded).toBe(2);
-            expect(downloader.downloadService.filesSkipped).toBe(0);
+            expect(stats.listsTotal).toBe(playlists.length);
+            expect(stats.filesTotal).toBe(2);
+            expect(stats.filesDownloaded).toBe(2);
+            expect(stats.filesSkipped).toBe(0);
 
         });
 
@@ -170,15 +170,15 @@ describe("Songs & Playlists", () => {
 
             downloader.downloadService.listsToDownload = [expectedPlaylist.name];
 
-            await downloader.downloadAllFiles(password);
+            const stats = await downloader.downloadAllFiles(password);
 
             expectedPlaylist.songs.forEach((song) =>
                     expect(vol.readFileSync(`/folder/${expectedPlaylist.name}/${song.name}`, {encoding: 'ascii'})).toEqual(song.data));
 
-            expect(downloader.downloadService.listsTotal).toBe(playlists.length);
-            expect(downloader.downloadService.filesTotal).toBe(1);
-            expect(downloader.downloadService.filesDownloaded).toBe(1);
-            expect(downloader.downloadService.filesSkipped).toBe(0);
+            expect(stats.listsTotal).toBe(playlists.length);
+            expect(stats.filesTotal).toBe(1);
+            expect(stats.filesDownloaded).toBe(1);
+            expect(stats.filesSkipped).toBe(0);
         });
 
         test('playlist selected that does not exist',  async () => {
@@ -189,12 +189,12 @@ describe("Songs & Playlists", () => {
 
             downloader.downloadService.listsToDownload = ['not existing'];
 
-            await downloader.downloadAllFiles(password);
+            const stats = await downloader.downloadAllFiles(password);
 
-            expect(downloader.downloadService.listsTotal).toBe(playlists.length);
-            expect(downloader.downloadService.filesTotal).toBe(0);
-            expect(downloader.downloadService.filesDownloaded).toBe(0);
-            expect(downloader.downloadService.filesSkipped).toBe(0);
+            expect(stats.listsTotal).toBe(playlists.length);
+            expect(stats.filesTotal).toBe(0);
+            expect(stats.filesDownloaded).toBe(0);
+            expect(stats.filesSkipped).toBe(0);
         });
 
 
@@ -233,12 +233,12 @@ describe("Songs & Playlists", () => {
             mockSuccessfulTagResponse(playlists);
             mockFetchedPlaylists(playlists, 200, true);
 
-            await downloader.downloadAllFiles(password);
+            const stats = await downloader.downloadAllFiles(password);
 
-            expect(downloader.downloadService.listsTotal).toBe(playlists.length);
-            expect(downloader.downloadService.filesTotal).toBe(2);
-            expect(downloader.downloadService.filesSkipped).toBe(0);
-            expect(downloader.downloadService.filesDownloaded).toBe(2);
+            expect(stats.listsTotal).toBe(playlists.length);
+            expect(stats.filesTotal).toBe(2);
+            expect(stats.filesSkipped).toBe(0);
+            expect(stats.filesDownloaded).toBe(2);
         });
 
         test('unsuccessful request', () => {

@@ -7,7 +7,6 @@ const PhotoDownloader = require('./photoDownloader.js');
 
 function cli() {
 
-
     program
         .version('1.0.0-SNAPSHOT', '-v, --version')
         .arguments('<url>').action(function (url) { program.url = url })
@@ -32,10 +31,9 @@ function cli() {
         }
 
         downloader.downloadAllFiles(password)
-            .then(() => {
-                const stats = downloader.downloadService;
-                console.log(`Processed ${stats.tagsTotal} tags, containing ${stats.photosTotal} photos ` +
-                    `(downloaded ${stats.photosDownloaded}, skipped ${stats.photosSkipped}) in ${(new Date() - startDate) / 1000}s`);
+            .then(stats => {
+                console.log(`Processed ${stats.listsTotal} ${downloader.listType}s, containing ${stats.filesTotal} files ` +
+                    `(downloaded ${stats.filesDownloaded}, skipped ${stats.filesSkipped}) in ${(new Date() - startDate) / 1000}s`);
                 process.exit()
             })
             .catch(err => {

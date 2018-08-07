@@ -4,16 +4,18 @@ const DownloadService = require('./downloadService.js');
 
 class AudioDownloader {
 
-    constructor(program) {
+    constructor(params) {
 
         this.listType = 'playlist';
 
         this.downloadService = new DownloadService({
-            url: program.url,
-            output: program.output,
-            flat: program.flat,
-            listsToDownload: program.tags,
-            user: program.user,
+            url : params.url,
+            user: params.user,
+            output: params.output,
+            flat: params.flat,
+
+            listsToDownload: params.playlists,
+
 
             listType: this.listType,
 

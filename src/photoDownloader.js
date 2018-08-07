@@ -3,16 +3,17 @@ const DownloadService = require('./downloadService.js');
 
 class PhotoDownloader {
 
-    constructor(program) {
+    constructor(params) {
 
         this.listType = 'tag';
 
         this.downloadService = new DownloadService({
-            url: program.url,
-            output: program.output,
-            flat: program.flat,
-            listsToDownload: program.tags,
-            user: program.user,
+            url : params.url,
+            user: params.user,
+            output: params.output,
+            flat: params.flat,
+
+            listsToDownload: params.tags,
 
             listType: this.listType,
 

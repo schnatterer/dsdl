@@ -19,7 +19,7 @@ Downloads files from [Synology DiskStation Manager](https://www.synology.com/dsm
 
 ## Audio
 * Group your songs into playlists
-* photostationtagdownloader downloads those for you. You can also do this via the web UI (where the playlist is zipped) or with [DS audio](https://www.synology.com/dsm/feature/audio_station#download) but it does not seem to be to reliably and it cannot be scripted 😉
+* photostationtagdownloader downloads those for you. You can also do this via the web UI (where the playlist is zipped) or with [DS audio](https://www.synology.com/dsm/feature/audio_station#download) but it does not seem to work reliably and it cannot be scripted 😉
 
 # Usage
 
@@ -36,11 +36,11 @@ Use it like so:
 
 * photos
     ```bash
-    ./pstd photo--user your-diskstsation-user --output photos/ http://diskstation/photo
+    ./pstd photo --user your-diskstsation-user --output photos/ http://diskstation/photo
     ```
 * audio
     ```bash
-    ./pstd audio--user your-user --output music/ http://diskstation:5000/audio
+    ./pstd audio --user your-user --output music/ http://diskstation:5000/audio
     ```
 
 You will be prompted for the password.
@@ -84,6 +84,6 @@ echo "PW" | ./pstd photo -u ...
   
 ### Audio
 
-* `--playlists` - downloads specific playlists. Note that tags containing spaces must be quoted. Multiple tags can either be specified  
+* `--playlists` - downloads specific playlists. Note that playlists containing spaces must be quoted. Multiple playlists can either be specified  
   * comma separated (e.g. `--playlists "tag one",numberTwo`) or
   * by using multiple parameters (e.g `--playlists "tag one" --playlists numberTwo`) 

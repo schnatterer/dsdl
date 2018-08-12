@@ -6,11 +6,20 @@
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=info.schnatterer.photostationtagdownloader&metric=coverage)](https://sonarcloud.io/dashboard?id=info.schnatterer.photostationtagdownloader)
 [![TecDebt](https://sonarcloud.io/api/project_badges/measure?project=info.schnatterer.photostationtagdownloader&metric=sqale_index)](https://sonarcloud.io/dashboard?id=info.schnatterer.photostationtagdownloader)
 
-Downloads tagged photos (aka "smart albums") from a [Synology Photo Station](https://www.synology.com/dsm/feature/photo_station) into a single folder.
+Downloads files from [Synology DiskStation Manager](https://www.synology.com/dsm). Supports downloading 
+* photos (all photos of a tag / "smart album") via [Photo Station](https://www.synology.com/dsm/feature/photo_station) and
+* audio (all songs of a playlist) via [Audio Station](https://www.synology.com/dsm/feature/audio_station) 
 
-Use Case: 
-* Set tags (i.e. [IPTC keywords](http://www.iptc.org/std/photometadata/documentation/userguide/index.htm#!Documents/generalimagecontent.htm)) for photos, grouping them into albums.
-* photostationtagdownloader downloads those albums for you. For some reasons this cannot be achieved using the Photo Station web app, nor native Android or Windows apps.
+# Use Cases
+
+## Photos 
+
+* Set tags (i.e. [IPTC keywords](http://www.iptc.org/std/photometadata/documentation/userguide/index.htm#!Documents/generalimagecontent.htm)) for photos, grouping them into "smart albums"
+* photostationtagdownloader downloads those for you. For some reasons this cannot be achieved using the Photo Station web app, nor native Android or Windows apps.
+
+## Audio
+* Group your songs into playlists
+* photostationtagdownloader downloads those for you. You can also do this via the web UI (where the playlist is zipped) or with [DS audio](https://www.synology.com/dsm/feature/audio_station#download) but it does not seem to be to reliably and it cannot be scripted 😉
 
 # Usage
 
@@ -25,16 +34,21 @@ chmod +x pstd
 
 Use it like so:
 
-```bash
-./pstd --user your-photostation-user --output photos/ http://diskstation
-```
+* photos
+    ```bash
+    ./pstd photo--user your-diskstsation-user --output photos/ http://diskstation/photo
+    ```
+* audio
+    ```bash
+    ./pstd audio--user your-user --output music/ http://diskstation:5000/audio
+    ```
 
 You will be prompted for the password.
 
 ## Docker
 
 ```bash
-docker run schnatterer/photostationtagdownloader:0.1.1 --user your-photostation-user --output photos/ http://diskstation
+docker run schnatterer/photostationtagdownloader:0.1.1 photo --user your-photostation-user --output photos/ http://diskstation/photo
 ```
 
 ## Node.js
@@ -43,7 +57,7 @@ You can also run it with your own node js instance.
 
 ```bash
 yarn install
-node src/app.js --user your-photostation-user --output photos/ http://diskstation
+node src/cli/app.js photo --user your-photostation-user --output photos/ http://diskstation/photo
 ```
 
 ## Non-interactive password
@@ -52,12 +66,23 @@ If running in batch/non-interactive mode, you you can just pipe it to `pstd`.
 Note that passwords showing up in the shell history or log files are a potential security risk.
 
 ```bash
-echo "PW" | ./pstd -u ...
+echo "PW" | ./pstd photo -u ...
 ```
 
 ## Options
 
-* `--flat` - downloads all photos of the chosen tags into a single folder
+### General
+
+* `--flat` - downloads all photos/songs of the chosen tags/playlists into a single folder
+
+### Photo
+
 * `--tags` - downloads specific tags. Note that tags containing spaces must be quoted. Multiple tags can either be specified  
   * comma separated (e.g. `--tags "tag one",numberTwo`) or
   * by using multiple parameters (e.g `--tags "tag one" --tags numberTwo`) 
+  
+### Audio
+
+* `--playlists` - downloads specific playlists. Note that tags containing spaces must be quoted. Multiple tags can either be specified  
+  * comma separated (e.g. `--playlists "tag one",numberTwo`) or
+  * by using multiple parameters (e.g `--playlists "tag one" --playlists numberTwo`) 

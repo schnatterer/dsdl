@@ -53,7 +53,8 @@ docker run schnatterer/photostationtagdownloader:0.1.1 photo --user your-photost
 
 ## Node.js
 
-You can also run it with your own node js instance.
+You can also run it with your own node js instance. This also allows for running on platforms that are not supplied with
+prebuilt binaries, like arm/arm64. For example on android, you can run pstd via [termux](https://termux.com/). 
 
 ```bash
 yarn install

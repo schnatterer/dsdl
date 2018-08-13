@@ -1,11 +1,14 @@
-const program = require('commander');
 const read = require('read');
 const startDate = new Date();
 
 const AudioDownloader = require('../audioDownloader.js');
 const PhotoDownloader = require('../photoDownloader.js');
 
-function cli() {
+function cli(program) {
+
+    if (!program) {
+        program = require('commander');
+    }
 
     let downloader;
 
@@ -31,6 +34,10 @@ function cli() {
         });
 
     program.parse(process.argv);
+
+    if (!downloader) {
+        program.help()
+    }
 
     read({prompt: 'Password: ', silent: true, terminal: true}, function (er, password) {
 

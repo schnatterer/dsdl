@@ -10,6 +10,13 @@ describe('CLI', () => {
 
     const requiredArgs = ['-u', 'expectedUser', '-o', 'expectedOutput', 'expectedUrl'];
 
+    test('No command', () => {
+        setArgv(requiredArgs);
+        program.help = jest.fn();
+        cli(program);
+        expect(program.help.mock.calls.length).toBe(1);
+    });
+
     test('Minimal mandatory params for photo command', () => {
         setArgv(['photo', ...requiredArgs]);
         cli(program);
@@ -28,13 +35,14 @@ describe('CLI', () => {
         expect(command.playlists).toEqual([]);
     });
 
-    test('No command', () => {
-        setArgv(requiredArgs);
-        program.help = jest.fn();
-        cli(program);
-        expect(program.help.mock.calls.length).toBe(1);
-    });
 
+    test('Comma-separated multiple playlists/tags', () => {
+        setArgv(['photo', ...requiredArgs, '--tags', '1', '--tags', '2,3 3,4']);
+        cli(program);
+        let command = getCommand('photo');
+
+        expect(command.tags).toEqual(expect.arrayContaining(['1', '2', '3 3', '4']));
+    });
     // A much more sensible test would be with a child process, as commander is static.
     // See https://github.com/npm/read/blob/master/test/basic.js
 

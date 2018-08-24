@@ -11,7 +11,7 @@ if (process.argv.length > 2) {
 
 platforms.forEach(platform => {
     compile({
-        input: 'src/app.js',
+        input: 'src/cli/app.js',
         target: `${platform}-${nodeVersion}`,
         name: `dist/pstd-${platform}`
     }).then(() => console.log(`Platform ${platform} success`))

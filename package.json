@@ -2,7 +2,7 @@
   "name": "photostationtagdownloader",
   "version": "0.1.2-SNAPSHOT",
   "description": "",
-  "main": "src/pstd.js",
+  "main": "src/cli/app.js",
   "scripts": {
     "package": "node createBinaries.js",
     "test": "jest"

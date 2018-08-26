@@ -51,7 +51,7 @@ You will be prompted for the password.
 ## Docker
 
 ```bash
-docker run schnatterer/dsdl:1.0.0 photo --user your-photostation-user --output photos/ http://diskstation/photo
+docker run -ti schnatterer/dsdl:1.0.0 photo --user your-photostation-user --output photos/ http://diskstation/photo
 ```
 
 ## Node.js

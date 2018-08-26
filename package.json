@@ -1,8 +1,8 @@
 {
-  "name": "photostationtagdownloader",
-  "version": "0.1.2-SNAPSHOT",
+  "name": "dsdl",
+  "version": "1.0.0-SNAPSHOT",
   "description": "",
-  "main": "src/cli/app.js",
+  "main": "src/cli/dsdl.js",
   "scripts": {
     "package": "node createBinaries.js",
     "test": "jest"

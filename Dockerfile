@@ -9,4 +9,4 @@ FROM node:9.5.0-alpine
 ADD src /dsdl
 COPY --from=build /node_modules /node_modules
 
-ENTRYPOINT ["node", "/dsdl/cli/app.js"]
+ENTRYPOINT ["node", "/dsdl/cli/dsdl.js"]

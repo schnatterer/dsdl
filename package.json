@@ -1,6 +1,6 @@
 {
   "name": "dsdl",
-  "version": "2.0.1-SNAPSHOT,
+  "version": "2.0.1-SNAPSHOT",
   "description": "",
   "main": "src/cli/dsdl.js",
   "scripts": {

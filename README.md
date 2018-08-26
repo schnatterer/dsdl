@@ -31,7 +31,7 @@ Downloads files from [Synology DiskStation Manager](https://www.synology.com/dsm
 Get the binary for your specific OS from the [release page](https://github.com/schnatterer/dsdl/releases).
 
 ```bash
-wget -O dsdl https://github.com/schnatterer/dsdl/releases/download/1.0.0/dsdl-linux-x64
+wget -O dsdl https://github.com/schnatterer/dsdl/releases/download/2.0.0/dsdl-linux-x64
 chmod +x dsdl
 ```
 
@@ -51,7 +51,7 @@ You will be prompted for the password.
 ## Docker
 
 ```bash
-docker run -ti schnatterer/dsdl:1.0.0 photo --user your-photostation-user --output photos/ http://diskstation/photo
+docker run -ti schnatterer/dsdl:2.0.0 photo --user your-photostation-user --output photos/ http://diskstation/photo
 ```
 
 ## Node.js

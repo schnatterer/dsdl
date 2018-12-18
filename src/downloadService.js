@@ -1,6 +1,6 @@
 const fetch = require('node-fetch');
-const FormData = require('form-data');
 const fs = require('fs');
+const path = require('path');
 const promisePipe = require('promisepipe');
 
 class DownloadService {
@@ -9,7 +9,7 @@ class DownloadService {
 
         this.baseUrl = `${params.url}/webapi`;
         this.output = params.output;
-        this.flat = params.flat;
+        this.folderStructure = params.folderStructure;
         this.listsToDownload = params.listsToDownload;
         this.user = params.user;
 
@@ -26,7 +26,7 @@ class DownloadService {
         this.createFetchListBody = params.createFetchListBody;
         this.findFilesInListResponse = params.findFilesInListResponse;
 
-        this.createFileName = params.createFileName;
+        this.findRelativePath = params.findRelativePath;
 
         this.fetchFileUrl = params.fetchFileUrl;
         this.createFetchFileBody = params.createFetchFileBody;
@@ -36,6 +36,8 @@ class DownloadService {
             filesDownloaded : 0,
             filesSkipped : 0,
             listsTotal : 0,
+            listsFailed : 0,
+            filesFailed : 0,
             listsDownloaded : []
         };
 
@@ -94,10 +96,20 @@ class DownloadService {
         lists.forEach(list => {
             this.stats.listsTotal++;
             if (this.allListsSelected() || this.listsToDownload.includes(list.name)) {
-                this.stats.listsDownloaded.push(list.name);
                 let promise = this.fetchList(list)
                     .then(res => this.validatedToJson(res, `${this.listType} "${list.name}" (id ${list.id})`))
-                    .then(json => this.processListResponse(json, list));
+                    .catch(e => {
+                        this.stats.listsFailed++;
+                        throw e
+                    })
+                    .then(json => this.processListResponse(json, list))
+                    .then(() => this.stats.listsDownloaded.push(list.name))
+                    .catch(e => {
+                        // Process error right away, because otherwise Promise.all() chain breaks, not waiting for
+                        // successful promises to resolve
+                        // Stats have been updated in the functions above
+                        console.log(`Error processing list: ${list}: ${e}`)
+                    });
                 promises.push(promise)
             }
         });
@@ -120,6 +132,7 @@ class DownloadService {
         if (responseJson.success) {
             return this.processFiles(this.findFilesInListResponse(responseJson), list);
         } else {
+            this.stats.listsFailed++;
             throw `Fetching ${this.listType} "${list.name}" returned success=false`
         }
     }
@@ -128,35 +141,57 @@ class DownloadService {
         for (const file of files) {
             this.stats.filesTotal++;
 
-            let path;
-            const fileName = this.createFileName(file);
-            if (this.flat) {
-                path = `${this.output}/${fileName}`;
-            } else {
-                let folder = `${this.output}/${list.name}`;
-                this.createFolderIfNotExists(folder);
-                path = `${folder}/${fileName}`;
-            }
+            const destinationFilePath = this.createDestinationPathDependingOnFolderStructure(file, list);
+            this.createFolderIfNotExists(DownloadService.extractPath(destinationFilePath));
 
-            if (fs.existsSync(path)) {
-                console.log(`Skipping file, because it already exists: ${path}`);
+            if (fs.existsSync(destinationFilePath)) {
+                console.log(`Skipping file, because it already exists: ${destinationFilePath}`);
                 this.stats.filesSkipped++;
             } else {
                 // Don't open too many connections in parallel
                 await this.fetchFile(file)
-                    .then(res => this.writeToFileIfResponseOk(res, file, path));
+                    .then(res => this.writeToFileIfResponseOk(res, file, destinationFilePath))
+                    .then(promisePipe => {
+                        console.log(`Finished writing file ${promisePipe[1].path}`);
+                        this.stats.filesDownloaded++
+                    }).catch(e => {
+                        this.stats.filesFailed++;
+                        return e;
+                    });
             }
         }
     }
 
-    writeToFileIfResponseOk(res, photo, path) {
+    createDestinationPathDependingOnFolderStructure(file, list) {
+        let destinationFilePath;
+        if (this.folderStructure === 'flat') {
+            destinationFilePath = `${this.output}/${DownloadService.extractFilename(this.findRelativePath(file))}`;
+        } else if (this.folderStructure === 'server') {
+            destinationFilePath = `${this.output}/${this.findRelativePath(file)}`;
+        } else {
+            if (this.folderStructure !== 'list') {
+                console.log(`FolderStructure not set, assuming "list".`)
+            }
+            destinationFilePath = `${this.output}/${list.name}/${DownloadService.extractFilename(this.findRelativePath(file))}`;
+        }
+        return destinationFilePath;
+    }
+
+    static extractPath(fileNameWithPath) {
+        return fileNameWithPath.substring(0, fileNameWithPath.lastIndexOf("/"));
+    }
+
+    static extractFilename(fileNameWithPath) {
+        return fileNameWithPath.substring(fileNameWithPath.lastIndexOf('/') + 1);
+    }
+
+    writeToFileIfResponseOk(res, file, path) {
         if (res.ok) {
             console.log('Writing ' + path);
             // Make sure that writing is finished before program exits
-            this.stats.filesDownloaded++;
             return promisePipe(res.body, fs.createWriteStream(path))
         } else {
-            throw `Can't write photo, because response not OK. Status: ${res.status}. Photo: ${this.createFileName(photo)} (id ${photo.id})`;
+            throw `Can't write file, because response not OK. Status: ${res.status}. File: ${this.findRelativePath(file)} (id ${file.id})`;
         }
     }
 
@@ -178,7 +213,7 @@ class DownloadService {
     fetchFile(file) {
 
         const url = `${this.baseUrl}/${this.fetchFileUrl}`;
-        console.log(`Trying to fetch file ${this.createFileName(file)} from ${url}`);
+        console.log(`Trying to fetch file ${this.findRelativePath(file)} from ${url}`);
 
         return this.postToNas(url, this.createFetchFileBody(file));
     }
@@ -197,10 +232,37 @@ class DownloadService {
         };
     }
 
-    createFolderIfNotExists(path) {
-        if (!fs.existsSync(path)) {
-            fs.mkdirSync(path);
-        }
+    // We need to create parent folders here as well, which is diffucult with node :-[
+    // With node > 10 we can use fs.mkdir('dir', {recursive: true})
+    // Taken from https://stackoverflow.com/a/40686853
+    createFolderIfNotExists(targetDir, { isRelativeToScript = false } = {}) {
+        //const sep = path.sep;
+        const sep = '/';
+        const initDir = path.isAbsolute(targetDir) ? sep : '';
+        const baseDir = isRelativeToScript ? __dirname : '.';
+
+        return targetDir.split(sep).reduce((parentDir, childDir) => {
+            const curDir = path.resolve(baseDir, parentDir, childDir);
+            try {
+                fs.mkdirSync(curDir);
+            } catch (err) {
+                if (err.code === 'EEXIST') { // curDir already exists!
+                    return curDir;
+                }
+
+                // To avoid `EISDIR` error on Mac and `EACCES`-->`ENOENT` and `EPERM` on Windows.
+                if (err.code === 'ENOENT') { // Throw the original parentDir error on curDir `ENOENT` failure.
+                    throw new Error(`EACCES: permission denied, mkdir '${parentDir}'`);
+                }
+
+                const caughtErr = ['EACCES', 'EPERM', 'EISDIR'].indexOf(err.code) > -1;
+                if (!caughtErr || caughtErr && curDir === path.resolve(targetDir)) {
+                    throw err; // Throw if it's just the last created dir.
+                }
+            }
+
+            return curDir;
+        }, initDir);
     }
 }
 

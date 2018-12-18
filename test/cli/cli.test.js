@@ -34,7 +34,6 @@ describe('CLI', () => {
         expect(command.playlists).toEqual([]);
     });
 
-
     test('Comma-separated multiple playlists/tags', () => {
         setArgv(['photo', ...requiredArgs, '--tags', '1', '--tags', '2,3 3,4']);
         cli();
@@ -60,7 +59,7 @@ describe('CLI', () => {
         expect(command.user).toEqual('expectedUser');
         expect(command.output).toEqual('expectedOutput');
         expect(command.url).toEqual('expectedUrl');
-        expect(command.flat).toEqual(false);
+        expect(command.folderStructure).toEqual('list');
     }
 
     function cli() {

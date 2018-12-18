@@ -2,9 +2,9 @@ const nock = require('nock');
 jest.mock('fs', () => require('memfs').fs);
 const PhotoDownloader = require('../src/photoDownloader');
 const vol = require('memfs').vol;
+const path = require('path');
 
 
-const output = '/output/dir';
 const baseUrl = 'http://diskstation';
 const expectedCookie = 'myCookie';
 
@@ -46,7 +46,7 @@ describe("Authentication", () => {
 
 describe("Photos & Tags", () => {
 
-    const expectedOutputFolder = '/folder';
+    const expectedOutputFolder = '/output/dir';
 
     let photos = [];
 
@@ -67,7 +67,7 @@ describe("Photos & Tags", () => {
         downloader.downloadService.listsToDownload = [];
 
         vol.reset();
-        vol.mkdirSync(expectedOutputFolder);
+        vol.mkdirpSync(path.resolve(__dirname, "", expectedOutputFolder));
     });
 
     describe("Download photos", () => {
@@ -83,7 +83,7 @@ describe("Photos & Tags", () => {
             const stats = await downloader.downloadAllFiles(password);
 
             photos.forEach((photo) =>
-                expect(vol.readFileSync(`/folder/${tags[0].name}/${photo.info.name}`, {encoding: 'ascii'})).toEqual(photo.data));
+                expect(vol.readFileSync(`/output/dir/${tags[0].name}/${photo.info.name}`, {encoding: 'ascii'})).toEqual(photo.data));
             expect(stats.filesTotal).toBe(photos.length);
             expect(stats.filesDownloaded).toBe(photos.length);
             expect(stats.filesSkipped).toBe(0);
@@ -94,12 +94,29 @@ describe("Photos & Tags", () => {
             mockSuccessfulTagResponse(tags);
 
             mockSuccessfulPhotoDownload(photos);
-            downloader.downloadService.flat = true;
+            downloader.downloadService.folderStructure = 'flat';
 
             const stats = await downloader.downloadAllFiles(password);
 
             photos.forEach((photo) =>
-                expect(vol.readFileSync(`/folder/${photo.info.name}`, {encoding: 'ascii'})).toEqual(photo.data));
+                expect(vol.readFileSync(`/output/dir/${photo.info.name}`, {encoding: 'ascii'})).toEqual(photo.data));
+            expect(stats.filesTotal).toBe(photos.length);
+            expect(stats.filesDownloaded).toBe(photos.length);
+            expect(stats.filesSkipped).toBe(0);
+        });
+
+        test('server folder', async () => {
+            mockFetchedTags(tags, 200, true);
+            mockSuccessfulTagResponse(tags);
+
+            mockSuccessfulPhotoDownload(photos);
+            downloader.downloadService.folderStructure = 'server';
+
+            const stats = await downloader.downloadAllFiles(password);
+
+            // Note: For now we photos do not support server folder, because it's difficult if not impossible to query
+            photos.forEach((photo) =>
+                expect(vol.readFileSync(`/output/dir/${photo.info.name}`, {encoding: 'ascii'})).toEqual(photo.data));
             expect(stats.filesTotal).toBe(photos.length);
             expect(stats.filesDownloaded).toBe(photos.length);
             expect(stats.filesSkipped).toBe(0);
@@ -111,28 +128,32 @@ describe("Photos & Tags", () => {
 
             mockSuccessfulPhotoDownload(photos);
 
-            vol.mkdirSync(`/folder/${tags[0].name}`);
-            vol.writeFileSync(`/folder/${tags[0].name}/${photos[0].info.name}`, 'some other data', {encoding: 'ascii'});
+            vol.mkdirSync(`/output/dir/${tags[0].name}`);
+            vol.writeFileSync(`/output/dir/${tags[0].name}/${photos[0].info.name}`, 'some other data', {encoding: 'ascii'});
 
             const stats = await downloader.downloadAllFiles(password);
 
-            expect(vol.readFileSync(`/folder/${tags[0].name}/${photos[0].info.name}`, {encoding: 'ascii'})).toEqual('some other data');
+            expect(vol.readFileSync(`/output/dir/${tags[0].name}/${photos[0].info.name}`, {encoding: 'ascii'})).toEqual('some other data');
             expect(stats.filesTotal).toBe(2);
             expect(stats.filesDownloaded).toBe(1);
             expect(stats.filesSkipped).toBe(1);
         });
 
-        test('returns non-2xx code', () => {
+        test('returns non-2xx code', async () => {
             mockFetchedTags(tags, 200, true);
             mockSuccessfulTagResponse(tags);
 
             mockPhotoDownload(photos[0].id, 500, '');
-            mockPhotoDownload(photos[1].id, 200, '');
+            mockSuccessfulPhotoDownload([photos[1]]);
 
-            expect.assertions(1);
+            const stats = await downloader.downloadAllFiles(password);
 
-            return expect(downloader.downloadAllFiles(password))
-                .rejects.toEqual("Can't write photo, because response not OK. Status: 500. Photo: one.jpg (id 1)");
+            [photos[1]].forEach((photo) =>
+                expect(vol.readFileSync(`/output/dir/${tags[1].name}/${photo.info.name}`, {encoding: 'ascii'})).toEqual(photo.data));
+            expect(stats.filesTotal).toBe(2);
+            expect(stats.filesDownloaded).toBe(1);
+            expect(stats.filesSkipped).toBe(0);
+            expect(stats.filesFailed).toBe(1);
         });
 
     });
@@ -148,7 +169,7 @@ describe("Photos & Tags", () => {
 
             tags.forEach((tag) =>
                 tag.photos.forEach((photo) =>
-                    expect(vol.readFileSync(`/folder/${tag.name}/${photo.info.name}`, {encoding: 'ascii'})).toEqual(photo.data)));
+                    expect(vol.readFileSync(`/output/dir/${tag.name}/${photo.info.name}`, {encoding: 'ascii'})).toEqual(photo.data)));
 
             expect(stats.listsTotal).toBe(tags.length);
             expect(stats.filesTotal).toBe(2);
@@ -170,7 +191,7 @@ describe("Photos & Tags", () => {
             const stats = await downloader.downloadAllFiles(password);
 
             expectedTag.photos.forEach((photo) =>
-                    expect(vol.readFileSync(`/folder/${expectedTag.name}/${photo.info.name}`, {encoding: 'ascii'})).toEqual(photo.data));
+                    expect(vol.readFileSync(`/output/dir/${expectedTag.name}/${photo.info.name}`, {encoding: 'ascii'})).toEqual(photo.data));
 
             expect(stats.listsTotal).toBe(tags.length);
             expect(stats.filesTotal).toBe(1);
@@ -194,32 +215,44 @@ describe("Photos & Tags", () => {
             expect(stats.filesSkipped).toBe(0);
         });
 
-
-        test('unsuccessful tag request', () => {
+        test('unsuccessful tag request', async () => {
             mockFetchedTags(tags, 200, true);
             mockSuccessfulPhotoDownload(photos);
 
             mockTagResponse(tags[0], 200, true);
             mockTagResponse(tags[1], 200, false);
 
-            expect.assertions(1);
+            const stats = await downloader.downloadAllFiles(password);
 
-            return downloader.downloadAllFiles(password)
-                .catch(e => expect(e).toEqual("Fetching tag \"the other tag\" returned success=false"));
+            tags[0].photos.forEach((photo) =>
+                expect(vol.readFileSync(`/output/dir/${tags[0].name}/${photo.info.name}`, {encoding: 'ascii'})).toEqual(photo.data));
+            expect(stats.filesTotal).toBe(1);
+            expect(stats.filesDownloaded).toBe(1);
+            expect(stats.filesSkipped).toBe(0);
+            expect(stats.filesFailed).toBe(0);
+            expect(stats.listsTotal).toBe(2);
+            expect(stats.listsFailed).toBe(1);
+            expect(stats.listsDownloaded.length).toBe(1);
         });
 
-        test('returns non-2xx code', () => {
+        test('returns non-2xx code', async () => {
             mockFetchedTags(tags, 200, true);
             mockSuccessfulPhotoDownload(photos);
 
             mockTagResponse(tags[0], 200, true);
             mockTagResponse(tags[1], 500, true);
 
+            const stats = await downloader.downloadAllFiles(password);
 
-            expect.assertions(1);
-
-            return downloader.downloadAllFiles(password)
-                .catch(e => expect(e).toEqual("response not OK, when fetching tag \"the other tag\" (id 2). Status: 500"));
+            tags[0].photos.forEach((photo) =>
+                expect(vol.readFileSync(`/output/dir/${tags[0].name}/${photo.info.name}`, {encoding: 'ascii'})).toEqual(photo.data));
+            expect(stats.filesTotal).toBe(1);
+            expect(stats.filesDownloaded).toBe(1);
+            expect(stats.filesSkipped).toBe(0);
+            expect(stats.filesFailed).toBe(0);
+            expect(stats.listsTotal).toBe(2);
+            expect(stats.listsFailed).toBe(1);
+            expect(stats.listsDownloaded.length).toBe(1);
         });
     });
 

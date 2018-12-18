@@ -2,9 +2,8 @@ const nock = require('nock');
 jest.mock('fs', () => require('memfs').fs);
 const AudioDownloader = require('../src/audioDownloader');
 const vol = require('memfs').vol;
+const path = require('path');
 
-
-const output = '/output/dir';
 const baseUrl = 'http://diskstation';
 const expectedCookie = 'myCookie';
 
@@ -46,7 +45,7 @@ describe("Authentication", () => {
 
 describe("Songs & Playlists", () => {
 
-    const expectedOutputFolder = '/folder';
+    const expectedOutputFolder = '/output/dir';
 
     let songs = [];
 
@@ -55,13 +54,13 @@ describe("Songs & Playlists", () => {
     beforeEach(() => {
 
         songs = [
-            song(1, 'one.mp3', 'fake-binary-data-1'), song(2, 'two.mp3', 'fake-binary-data-too')
+            song(1, 'first/path', 'one.mp3', 'fake-binary-data-1'), song(2, 'other/path', 'two.mp3', 'fake-binary-data-too')
         ];
 
         playlists = [
             playlist(1, 'our-playlist', [songs[0]]), playlist(2, 'the other playlist', [songs[1]])
         ];
-        
+
         nock.cleanAll();
         mockAuthResponse(200, {success: true});
 
@@ -69,7 +68,7 @@ describe("Songs & Playlists", () => {
         downloader.downloadService.listsToDownload = [];
 
         vol.reset();
-        vol.mkdirSync(expectedOutputFolder);
+        vol.mkdirpSync(path.resolve(__dirname, "", expectedOutputFolder));
     });
 
     describe("Download songs", () => {
@@ -79,13 +78,13 @@ describe("Songs & Playlists", () => {
             downloader.downloadService.listsToDownload = [playlists[0].name];
             vol.reset();
             mockSuccessfulSongDownload(songs);
-            mockSuccessfulTagResponse(playlists);
+            mockSuccessfulPlaylistResponse(playlists);
             mockFetchedPlaylists(playlists, 200, true);
 
             const stats = await downloader.downloadAllFiles(password);
 
             songs.forEach((song) =>
-                expect(vol.readFileSync(`/folder/${playlists[0].name}/${song.name}`, {encoding: 'ascii'})).toEqual(song.data));
+                expect(vol.readFileSync(`/output/dir/${playlists[0].name}/${song.name}`, {encoding: 'ascii'})).toEqual(song.data));
             expect(stats.filesTotal).toBe(songs.length);
             expect(stats.filesDownloaded).toBe(songs.length);
             expect(stats.filesSkipped).toBe(0);
@@ -93,15 +92,31 @@ describe("Songs & Playlists", () => {
 
         test('flat folder', async () => {
             mockFetchedPlaylists(playlists, 200, true);
-            mockSuccessfulTagResponse(playlists);
-            
+            mockSuccessfulPlaylistResponse(playlists);
+
             mockSuccessfulSongDownload(songs);
-            downloader.downloadService.flat = true;
+            downloader.downloadService.folderStructure = 'flat';
 
             const stats = await downloader.downloadAllFiles(password);
 
             songs.forEach((song) =>
-                expect(vol.readFileSync(`/folder/${song.name}`, {encoding: 'ascii'})).toEqual(song.data));
+                expect(vol.readFileSync(`/output/dir/${song.name}`, {encoding: 'ascii'})).toEqual(song.data));
+            expect(stats.filesTotal).toBe(songs.length);
+            expect(stats.filesDownloaded).toBe(songs.length);
+            expect(stats.filesSkipped).toBe(0);
+        });
+
+        test('server folder', async () => {
+            mockFetchedPlaylists(playlists, 200, true);
+            mockSuccessfulPlaylistResponse(playlists);
+
+            mockSuccessfulSongDownload(songs);
+            downloader.downloadService.folderStructure = 'server';
+
+            const stats = await downloader.downloadAllFiles(password);
+
+            songs.forEach((song) =>
+                expect(vol.readFileSync(`/output/dir/${song.path}`, {encoding: 'ascii'})).toEqual(song.data));
             expect(stats.filesTotal).toBe(songs.length);
             expect(stats.filesDownloaded).toBe(songs.length);
             expect(stats.filesSkipped).toBe(0);
@@ -109,49 +124,52 @@ describe("Songs & Playlists", () => {
 
         test('skip existing', async () => {
             mockFetchedPlaylists(playlists, 200, true);
-            mockSuccessfulTagResponse(playlists);
-            
+            mockSuccessfulPlaylistResponse(playlists);
+
             mockSuccessfulSongDownload(songs);
 
-            vol.mkdirSync(`/folder/${playlists[0].name}`);
-            vol.writeFileSync(`/folder/${playlists[0].name}/${songs[0].name}`, 'some other data', {encoding: 'ascii'});
+            vol.mkdirpSync(`/output/dir/${playlists[0].name}`);
+            vol.writeFileSync(`/output/dir/${playlists[0].name}/${songs[0].name}`, 'some other data', {encoding: 'ascii'});
 
             const stats = await downloader.downloadAllFiles(password);
 
-            expect(vol.readFileSync(`/folder/${playlists[0].name}/${songs[0].name}`, {encoding: 'ascii'})).toEqual('some other data');
+            expect(vol.readFileSync(`/output/dir/${playlists[0].name}/${songs[0].name}`, {encoding: 'ascii'})).toEqual('some other data');
             expect(stats.filesTotal).toBe(2);
             expect(stats.filesDownloaded).toBe(1);
             expect(stats.filesSkipped).toBe(1);
         });
 
-        test('returns non-2xx code', () => {
+        test('returns non-2xx code', async () => {
             mockFetchedPlaylists(playlists, 200, true);
-            mockSuccessfulTagResponse(playlists);
-            
+            mockSuccessfulPlaylistResponse(playlists);
+
             mockSongDownload(songs[0].id, 500, '');
-            mockSongDownload(songs[1].id, 200, '');
+            mockSuccessfulSongDownload([songs[1]]);
 
-            expect.assertions(1);
+            const stats = await downloader.downloadAllFiles(password);
 
-            return expect(downloader.downloadAllFiles(password))
-                .rejects.toEqual("Can't write photo, because response not OK. Status: 500. Photo: one.mp3 (id 1)");
+            [songs[1]].forEach((song) =>
+                expect(vol.readFileSync(`/output/dir/${playlists[1].name}/${song.name}`, {encoding: 'ascii'})).toEqual(song.data));
+            expect(stats.filesTotal).toBe(2);
+            expect(stats.filesDownloaded).toBe(1);
+            expect(stats.filesSkipped).toBe(0);
+            expect(stats.filesFailed).toBe(1);
         });
-
     });
 
     describe("Select Playlists", () => {
 
-        test('no specific playlist selected, i.e. all playlists',  async () => {
+        test('no specific playlist selected, i.e. all playlists', async () => {
             mockFetchedPlaylists(playlists, 200, true);
-            
+
             mockSuccessfulSongDownload(songs);
-            mockSuccessfulTagResponse(playlists);
+            mockSuccessfulPlaylistResponse(playlists);
 
             const stats = await downloader.downloadAllFiles(password);
 
             playlists.forEach((playlist) =>
                 playlist.songs.forEach((song) =>
-                    expect(vol.readFileSync(`/folder/${playlist.name}/${song.name}`, {encoding: 'ascii'})).toEqual(song.data)));
+                    expect(vol.readFileSync(`/output/dir/${playlist.name}/${song.name}`, {encoding: 'ascii'})).toEqual(song.data)));
 
             expect(stats.listsTotal).toBe(playlists.length);
             expect(stats.filesTotal).toBe(2);
@@ -160,11 +178,11 @@ describe("Songs & Playlists", () => {
 
         });
 
-        test('specific playlist selected',  async () => {
+        test('specific playlist selected', async () => {
             mockFetchedPlaylists(playlists, 200, true);
-            
+
             mockSuccessfulSongDownload(songs);
-            mockSuccessfulTagResponse(playlists);
+            mockSuccessfulPlaylistResponse(playlists);
 
             const expectedPlaylist = playlists[0];
 
@@ -173,7 +191,7 @@ describe("Songs & Playlists", () => {
             const stats = await downloader.downloadAllFiles(password);
 
             expectedPlaylist.songs.forEach((song) =>
-                    expect(vol.readFileSync(`/folder/${expectedPlaylist.name}/${song.name}`, {encoding: 'ascii'})).toEqual(song.data));
+                expect(vol.readFileSync(`/output/dir/${expectedPlaylist.name}/${song.name}`, {encoding: 'ascii'})).toEqual(song.data));
 
             expect(stats.listsTotal).toBe(playlists.length);
             expect(stats.filesTotal).toBe(1);
@@ -181,11 +199,11 @@ describe("Songs & Playlists", () => {
             expect(stats.filesSkipped).toBe(0);
         });
 
-        test('playlist selected that does not exist',  async () => {
+        test('playlist selected that does not exist', async () => {
             mockFetchedPlaylists(playlists, 200, true);
-            
+
             mockSuccessfulSongDownload(songs);
-            mockSuccessfulTagResponse(playlists);
+            mockSuccessfulPlaylistResponse(playlists);
 
             downloader.downloadService.listsToDownload = ['not existing'];
 
@@ -198,39 +216,61 @@ describe("Songs & Playlists", () => {
         });
 
 
-        test('unsuccessful playlist request', () => {
+        test('unsuccessful playlist request', async () => {
             mockFetchedPlaylists(playlists, 200, true);
             mockSuccessfulSongDownload(songs);
-            
+
             mockPlaylistResponse(playlists[0], 200, true);
             mockPlaylistResponse(playlists[1], 200, false);
 
-            expect.assertions(1);
 
-            return downloader.downloadAllFiles(password)
-                .catch(e => expect(e).toEqual("Fetching playlist \"the other playlist\" returned success=false"));
+            const stats = await downloader.downloadAllFiles(password);
+
+            playlists[0].songs.forEach((song) =>
+                expect(vol.readFileSync(`/output/dir/${playlists[0].name}/${song.name}`, {encoding: 'ascii'})).toEqual(song.data));
+            expect(stats.filesTotal).toBe(1);
+            expect(stats.filesDownloaded).toBe(1);
+            expect(stats.filesSkipped).toBe(0);
+            expect(stats.filesFailed).toBe(0);
+            expect(stats.listsTotal).toBe(2);
+            expect(stats.listsFailed).toBe(1);
+            expect(stats.listsDownloaded.length).toBe(1);
         });
 
-        test('returns non-2xx code', () => {
+        test('returns non-2xx code', async () => {
             mockFetchedPlaylists(playlists, 200, true);
             mockSuccessfulSongDownload(songs);
-            
+
             mockPlaylistResponse(playlists[0], 200, true);
             mockPlaylistResponse(playlists[1], 500, true);
 
-            expect.assertions(1);
+            const stats = await downloader.downloadAllFiles(password);
 
-            return downloader.downloadAllFiles(password)
-                .catch(e => expect(e).toEqual("response not OK, when fetching playlist \"the other playlist\" (id 2). Status: 500"));
+            playlists[0].songs.forEach((song) =>
+                expect(vol.readFileSync(`/output/dir/${playlists[0].name}/${song.name}`, {encoding: 'ascii'})).toEqual(song.data));
+            expect(stats.filesTotal).toBe(1);
+            expect(stats.filesDownloaded).toBe(1);
+            expect(stats.filesSkipped).toBe(0);
+            expect(stats.filesFailed).toBe(0);
+            expect(stats.listsTotal).toBe(2);
+            expect(stats.listsFailed).toBe(1);
+            expect(stats.listsDownloaded.length).toBe(1);
         });
     });
 
     describe("Fetch Playlists", () => {
 
         test('Successful request', async () => {
-            vol.reset();
+            downloader = new AudioDownloader({
+                url: baseUrl,
+                user: 'ignored'
+            });
+            downloader.downloadService.output = expectedOutputFolder;
+            downloader.downloadService.listsToDownload = [];
+
+
             mockSuccessfulSongDownload(songs);
-            mockSuccessfulTagResponse(playlists);
+            mockSuccessfulPlaylistResponse(playlists);
             mockFetchedPlaylists(playlists, 200, true);
 
             const stats = await downloader.downloadAllFiles(password);
@@ -262,15 +302,16 @@ describe("Songs & Playlists", () => {
 });
 
 function mockSuccessfulSongDownload(songs) {
-    songs.forEach((photo) => mockSongDownload(photo.id, 200, photo.data));
-}
-function mockSuccessfulTagResponse(playlists) {
-    playlists.forEach((tag) => mockPlaylistResponse(tag, 200, true));
+    songs.forEach((song) => mockSongDownload(song.id, 200, song.data));
 }
 
-function song(id, name, data) {
+function mockSuccessfulPlaylistResponse(playlists) {
+    playlists.forEach((playlist) => mockPlaylistResponse(playlist, 200, true));
+}
+
+function song(id, path, name, data) {
     // Note: Data is not a part of the productive object, just makes testing simpler
-    return {id: id, path: `/some/path/${name}`, data: data, name: name}
+    return {id: id, path: `${path}/${name}`, data: data, name: name}
 }
 
 function playlist(id, name, songs) {
@@ -287,7 +328,7 @@ function mockAuthResponse(returnCode, response) {
 
 function mockSongDownload(songId, returnCode, response) {
     nock(baseUrl)
-        .post('/webapi/AudioStation/download.cgi', function(body) {
+        .post('/webapi/AudioStation/download.cgi', function (body) {
             return body.includes(`songs=${songId}`);
         })
         .reply(returnCode, response);
@@ -295,15 +336,15 @@ function mockSongDownload(songId, returnCode, response) {
 
 function mockPlaylistResponse(playlist, returnCode, responseSuccessful) {
     nock(baseUrl)
-        .post('/webapi/AudioStation/playlist.cgi', function(body) {
+        .post('/webapi/AudioStation/playlist.cgi', function (body) {
             return body.includes(`id=${playlist.id}`);
         })
-        .reply(returnCode, {success: responseSuccessful, data: { playlists: [ { additional: { songs: playlist.songs } }] }});
+        .reply(returnCode, {success: responseSuccessful, data: {playlists: [{additional: {songs: playlist.songs}}]}});
 }
 
 function mockFetchedPlaylists(playlists, returnCode, responseSuccessful) {
     nock(baseUrl)
-        .post('/webapi/AudioStation/playlist.cgi', function(body) {
+        .post('/webapi/AudioStation/playlist.cgi', function (body) {
             return body.includes(`method=list`);
         })
         .reply(returnCode, {success: responseSuccessful, data: {playlists: playlists}});

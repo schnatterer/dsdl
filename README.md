@@ -77,7 +77,11 @@ echo "PW" | ./dsdl photo -u ...
 
 ### General
 
-* `--flat` - downloads all photos/songs of the chosen tags/playlists into a single folder
+* `--folder-structure` 
+  * Default: `list` - creates subdirs for each list.
+  * `flat` - writes all photos to a single folders.
+  * `server` - creates same folder structure as on server (Works only for audio).  
+     Or is there a way to get the album for a photo via the Synology Photo Station API? 
 
 ### Photo
 

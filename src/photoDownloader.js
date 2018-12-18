@@ -7,11 +7,17 @@ class PhotoDownloader {
 
         this.listType = 'tag';
 
+        if (params.folderStructure === 'server') {
+            // If it is possible to get path (album?) of photo, we should just implement it in findRelativePath() and
+            // Remove this block
+            throw "folderStructure 'server' not supported for photos. "
+        }
+
         this.downloadService = new DownloadService({
             url : params.url,
             user: params.user,
             output: params.output,
-            flat: params.flat,
+            folderStructure: params.folderStructure,
 
             listsToDownload: params.tags,
 
@@ -28,7 +34,7 @@ class PhotoDownloader {
             createFetchListBody: this.createFetchListBody,
             findFilesInListResponse: this.findFilesInListResponse,
 
-            createFileName: this.createFileName,
+            findRelativePath: this.findRelativePath,
 
             fetchFileUrl: 'download.php',
             createFetchFileBody: this.createFetchFileBody
@@ -59,7 +65,7 @@ class PhotoDownloader {
         return responseJson.data.items;
     }
 
-    createFileName(photo) {
+    findRelativePath(photo) {
         return photo.info.name;
     }
 

@@ -43,8 +43,10 @@ function cli(program) {
 
         downloader.downloadAllFiles(password)
             .then(stats => {
-                console.log(`Processed ${stats.listsTotal} ${downloader.listType}s, containing ${stats.filesTotal} files ` +
-                    `(downloaded ${stats.filesDownloaded}, skipped ${stats.filesSkipped}) in ${(new Date() - startDate) / 1000}s`);
+                console.log(`Processed ${stats.listsTotal} ${downloader.listType}s  (of which ${stats.listsFailed} failed),` +
+                            `containing ${stats.filesTotal} files ` +
+                            `(downloaded ${stats.filesDownloaded}, skipped ${stats.filesSkipped}, failed ${stats.filesFailed})` +
+                            `in ${(new Date() - startDate) / 1000}s`);
                 process.exit()
             })
             .catch(err => {
@@ -55,17 +57,22 @@ function cli(program) {
 }
 
 function setCommonParams(program) {
+    const cliIntendion = '                                    ';
     return program
+        .option('-u, --user <required>', 'Server user')
+        .option('-o, --output <required>', 'Write to this folder')
+        .option('-f, --folder-structure [folderStructure]',
+            `\'flat\' - writes all photos to a single folders.\n${cliIntendion}` +
+            `\'list\' - creates subdirs for each list.\n${cliIntendion}` +
+            '\'server\' - creates same folder structure as on server',
+            'list')
         .arguments('<url>').action(function (url) {
             program.url = url
         })
-        .option('-u, --user <required>', 'Server user')
-        .option('-o, --output <required>', 'Write to this folder')
-        .option('-f, --flat [value]', 'Writes all photos to a single folders. If not set, creates subdirs for each tag', false)
 }
 
 function validateRequiredParams(options) {
-    if (!options.user || !options.output || !options.url) {
+    if (!options.user || !options.output || !options.url || !/^(flat|list|server)$/g.test(options.folderStructure)) {
         options.help()
     }
 }

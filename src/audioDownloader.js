@@ -7,15 +7,15 @@ class AudioDownloader {
     constructor(params) {
 
         this.listType = 'playlist';
+        this.folderStructure = params.folderStructure;
 
         this.downloadService = new DownloadService({
             url : params.url,
             user: params.user,
             output: params.output,
-            flat: params.flat,
+            folderStructure: params.folderStructure,
 
             listsToDownload: params.playlists,
-
 
             listType: this.listType,
 
@@ -30,7 +30,7 @@ class AudioDownloader {
             createFetchListBody: this.createFetchListBody,
             findFilesInListResponse: this.findFilesInListResponse,
 
-            createFileName: this.createFileName,
+            findRelativePath: this.findRelativePath,
 
             fetchFileUrl: 'AudioStation/download.cgi',
             createFetchFileBody: this.createFetchFileBody
@@ -49,8 +49,13 @@ class AudioDownloader {
         return responseJson.data.playlists[0].additional.songs
     }
 
-    createFileName(song) {
-        return song.path.split('/').pop();
+    findRelativePath(song) {
+        if (this.folderStructure === 'server') {
+            return song.path.replace('/music/', '')
+        } else{
+            //return song.path.split('/').pop();
+            return song.path
+        }
     }
 
     createAuthBody(username, password) {

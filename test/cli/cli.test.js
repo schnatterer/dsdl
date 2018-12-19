@@ -4,7 +4,16 @@ let program;
 
 beforeEach(() => {
     program = new commander.Command();
+
+    jest.mock('read');
+    const read = require('read');
+    // For now, ignore read(), by not calling the call back function
+    read.mockImplementation();
+    // We could actually execute read() and test the function like so
+    //read.mockImplementation((obj, funct) => funct({}, 'pw'));
 });
+
+
 describe('CLI', () => {
 
     const requiredArgs = ['-u', 'expectedUser', '-o', 'expectedOutput', 'expectedUrl'];

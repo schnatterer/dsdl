@@ -9,16 +9,16 @@ const expectedCookie = 'myCookie';
 
 let downloader;
 const password = 'dontCare';
+const program = {
+    url: baseUrl,
+    user: 'ignored'
+};
 
 beforeEach(() => {
-    const program = {
-        url: baseUrl,
-        user: 'ignored'
-    };
     downloader = new AudioDownloader(program);
 });
 
-describe("Authentication", () => {
+describe("Authentication", () => {1
 
     test('unsuccessful auth', () => {
         mockAuthResponse(200, {success: false});
@@ -64,8 +64,11 @@ describe("Songs & Playlists", () => {
         nock.cleanAll();
         mockAuthResponse(200, {success: true});
 
-        downloader.output = expectedOutputFolder;
-        downloader.listsToDownload = [];
+        downloader = new AudioDownloader({
+            ...program,
+            playlists: [],
+            output: expectedOutputFolder
+        });
 
         vol.reset();
         vol.mkdirpSync(path.resolve(__dirname, "", expectedOutputFolder));

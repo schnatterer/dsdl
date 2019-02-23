@@ -8,6 +8,7 @@ class AudioDownloader extends Downloader {
 
         super({
            ...params,
+            listsToDownload: params.playlists,
             listType: 'playlist',
             authUrl: 'auth.cgi',
             fetchListsUrl: 'AudioStation/playlist.cgi',

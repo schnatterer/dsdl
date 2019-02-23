@@ -7,6 +7,7 @@ class PhotoDownloader extends Downloader {
 
         super({
             ...params,
+            listsToDownload: params.tags,
             listType: 'tag',
             authUrl: 'auth.php',
             fetchListsUrl: 'tag.php',

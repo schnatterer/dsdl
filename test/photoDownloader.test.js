@@ -10,12 +10,12 @@ const expectedCookie = 'myCookie';
 
 let downloader;
 const password = 'dontCare';
+const program = {
+    url: baseUrl,
+    user: 'ignored'
+};
 
 beforeEach(() => {
-    const program = {
-        url: baseUrl,
-        user: 'ignored'
-    };
     downloader = new PhotoDownloader(program);
 });
 
@@ -63,8 +63,11 @@ describe("Photos & Tags", () => {
         nock.cleanAll();
         mockAuthResponse(200, {success: true});
 
-        downloader.output = expectedOutputFolder;
-        downloader.listsToDownload = [];
+        downloader = new PhotoDownloader({
+            ...program,
+            tags: [],
+            output: expectedOutputFolder
+        });
 
         vol.reset();
         vol.mkdirpSync(path.resolve(__dirname, "", expectedOutputFolder));

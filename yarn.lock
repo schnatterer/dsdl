@@ -2734,6 +2734,13 @@ lru-cache@^4.0.1:
     pseudomap "^1.0.2"
     yallist "^2.1.2"
 
+m3u@^0.0.2:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/m3u/-/m3u-0.0.2.tgz#cb971743b434efd8c77b3cc3a47fc0411a903df7"
+  integrity sha1-y5cXQ7Q079jHezzDpH/AQRqQPfc=
+  dependencies:
+    oop "0.0.3"
+
 make-dir@^1.0.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/make-dir/-/make-dir-1.2.0.tgz#6d6a49eead4aae296c53bbf3a1a008bd6c89469b"
@@ -3149,6 +3156,11 @@ onetime@^2.0.0:
   resolved "https://registry.yarnpkg.com/onetime/-/onetime-2.0.1.tgz#067428230fd67443b2794b22bba528b6867962d4"
   dependencies:
     mimic-fn "^1.0.0"
+
+oop@0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/oop/-/oop-0.0.3.tgz#70fa405a5650891a194fdc82ca68dad6dabf4401"
+  integrity sha1-cPpAWlZQiRoZT9yCymja1tq/RAE=
 
 optimist@^0.6.1:
   version "0.6.1"

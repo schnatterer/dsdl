@@ -1,6 +1,10 @@
 // Needed for node < 10
 const URLSearchParams = require('url').URLSearchParams;
+const fs = require('fs');
+const m3u = require('m3u')
+
 const Downloader = require('./downloader.js');
+
 
 class AudioDownloader extends Downloader {
 
@@ -15,6 +19,8 @@ class AudioDownloader extends Downloader {
             fetchListUrl: 'AudioStation/playlist.cgi',
             fetchFileUrl: 'AudioStation/download.cgi'
         });
+
+        this.m3u = params.m3u;
     }
 
     findListInListsResponse(responseJson) {
@@ -22,7 +28,30 @@ class AudioDownloader extends Downloader {
     }
 
     findFilesInListResponse(responseJson) {
-        return responseJson.data.playlists[0].additional.songs
+
+        const playlist = responseJson.data.playlists[0];
+
+        if (this.m3u) {
+            this.writeM3u(playlist);
+        }
+
+        return playlist.additional.songs
+    }
+
+    writeM3u(playlist) {
+        const m3uWriter = m3u.writer();
+        const name = playlist.name;
+        const songs = playlist.additional.songs;
+
+        songs.forEach( song => {
+            m3uWriter.file(
+                this.createDestinationPathDependingOnFolderStructure(song, playlist)
+                    .replace(new RegExp(`^${this.output}/`, "g"),"")
+            );
+        });
+
+        // Write synchronously because this function is no called outside our main promise pipe
+        fs.writeFileSync(`${this.output}/${name}.m3u`, m3uWriter.toString());
     }
 
     findRelativePath(song) {

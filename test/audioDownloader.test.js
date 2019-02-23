@@ -302,6 +302,66 @@ describe("Songs & Playlists", () => {
                 .catch(e => expect(e).toEqual("response not OK, when fetching all playlists. Status: 500"));
         });
     });
+
+    describe("Create m3u", () => {
+
+        test('none', async () => {
+            mockFetchedPlaylists(playlists, 200, true);
+            mockSuccessfulPlaylistResponse(playlists);
+
+            mockSuccessfulSongDownload(songs);
+            downloader.folderStructure = 'flat';
+
+            await downloader.downloadAllFiles(password);
+
+            expect(vol.existsSync(`/output/dir/${playlists[0].name}.m3u`)).toBeFalsy();
+            expect(vol.existsSync(`/output/dir/${playlists[1].name}.m3u`)).toBeFalsy();
+        });
+
+        test('flat folder', async () => {
+            mockFetchedPlaylists(playlists, 200, true);
+            mockSuccessfulPlaylistResponse(playlists);
+
+            mockSuccessfulSongDownload(songs);
+            downloader.folderStructure = 'flat';
+            downloader.m3u = true;
+
+            await downloader.downloadAllFiles(password);
+
+
+            playlists.forEach((playlist) => {
+
+                expect(vol.existsSync(`/output/dir/${playlist.name}.m3u`)).toBeTruthy();
+                const m3u = vol.readFileSync(`/output/dir/${playlist.name}.m3u`, {encoding: 'ascii'});
+
+                playlist.songs.forEach( (song) => {
+                    expect(m3u).toContain(song.name);
+                })
+            });
+        });
+
+        test('server folder', async () => {
+            mockFetchedPlaylists(playlists, 200, true);
+            mockSuccessfulPlaylistResponse(playlists);
+
+            mockSuccessfulSongDownload(songs);
+            downloader.folderStructure = 'server';
+            downloader.m3u = true;
+
+            await downloader.downloadAllFiles(password);
+
+
+            playlists.forEach((playlist) => {
+
+                expect(vol.existsSync(`/output/dir/${playlist.name}.m3u`)).toBeTruthy();
+                const m3u = vol.readFileSync(`/output/dir/${playlist.name}.m3u`, {encoding: 'ascii'});
+
+                playlist.songs.forEach( (song) => {
+                    expect(m3u).toContain(song.path);
+                })
+            });
+        });
+    });
 });
 
 function mockSuccessfulSongDownload(songs) {
@@ -342,7 +402,7 @@ function mockPlaylistResponse(playlist, returnCode, responseSuccessful) {
         .post('/webapi/AudioStation/playlist.cgi', function (body) {
             return body.includes(`id=${playlist.id}`);
         })
-        .reply(returnCode, {success: responseSuccessful, data: {playlists: [{additional: {songs: playlist.songs}}]}});
+        .reply(returnCode, {success: responseSuccessful, data: {playlists: [{name: playlist.name, additional: {songs: playlist.songs}}]}});
 }
 
 function mockFetchedPlaylists(playlists, returnCode, responseSuccessful) {

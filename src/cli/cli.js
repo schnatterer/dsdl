@@ -28,6 +28,7 @@ function cli(program) {
         .command('audio')
         .description('Download from audio station'))
         .option('-p, --playlists [value]', 'Comma separated list of specific playlists to download. If not set, instead loads all playlists', commaSeparatedMultiple, [])
+        .option('-m, --m3u [value]', 'Create m3u playlist files for each downloaded playlist', false)
         .action(function (env, options) {
             validateRequiredParams(options);
             downloader = new AudioDownloader(options);

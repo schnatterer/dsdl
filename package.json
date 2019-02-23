@@ -22,13 +22,15 @@
     "jest-sonar-reporter": "^2.0.0",
     "nexe": "^2.0.0-rc.34",
     "nock": "^9.2.6",
-    "memfs": "2.9.0"
+    "memfs": "2.9.0",
+    "typescript": "^3.3.3333"
   },
   "jest": {
     "collectCoverage": true,
     "coverageReporters": [
       "lcov"
     ],
-    "testResultsProcessor": "jest-sonar-reporter"
+    "testResultsProcessor": "jest-sonar-reporter",
+    "testURL": "http://localhost/"
   }
 }

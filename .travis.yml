@@ -1,6 +1,6 @@
 language: node_js
 
-# Keep in sync with Dockerfile
+# Keep in sync with Dockerfile and createBinaries.js
 node_js: '10.15.1'
 
 services:

@@ -1,5 +1,5 @@
 # Define node version for all stages
-# Keep in sync with .travis.yml
+# Keep in sync with .travis.yml & createBinaries.js
 FROM node:10.15.1-alpine as node
 
 FROM node as build

@@ -63,7 +63,7 @@ function setCommonParams(program) {
         .option('-u, --user <required>', 'Server user')
         .option('-o, --output <required>', 'Write to this folder')
         .option('-f, --folder-structure [folderStructure]',
-            `\'flat\' - writes all photos to a single folders.\n${cliIntendion}` +
+            `\'flat\' - writes all files to a single folders.\n${cliIntendion}` +
             `\'list\' - creates subdirs for each list.\n${cliIntendion}` +
             '\'server\' - creates same folder structure as on server',
             'list')

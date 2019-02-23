@@ -21,6 +21,7 @@ Downloads files from [Synology DiskStation Manager](https://www.synology.com/dsm
 * dsdl downloads those for you. For some reasons this cannot be achieved using the Photo Station web app, nor native Android or Windows apps.
 
 ## Audio
+
 * Group your songs into playlists
 * dsdl downloads those for you. You can also do this via the web UI (where the playlist is zipped) or with [DS audio](https://www.synology.com/dsm/feature/audio_station#download) but it does not seem to work reliably and it cannot be scripted 😉
 
@@ -96,3 +97,4 @@ echo "PW" | ./dsdl photo -u ...
 * `--playlists` - downloads specific playlists. Note that playlists containing spaces must be quoted. Multiple playlists can either be specified  
   * comma separated (e.g. `--playlists "tag one",numberTwo`) or
   * by using multiple parameters (e.g `--playlists "tag one" --playlists numberTwo`) 
+* `--m3u` - Create m3u playlist files for each downloaded playlist

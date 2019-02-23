@@ -16,4 +16,9 @@ platforms.forEach(platform => {
         target: `${platform}-${nodeVersion}`,
         name: `dist/dsdl-${platform}`
     }).then(() => console.log(`Platform ${platform} success`))
+        .catch(e => {
+        console.log(`Platform ${platform} failed: ${e}`);
+        // Make sure the builds breaks
+            process.exit(1);
+    });
 });

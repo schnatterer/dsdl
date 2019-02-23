@@ -51,8 +51,10 @@ You will be prompted for the password.
 ## Docker
 
 ```bash
-docker run -ti schnatterer/dsdl:2.0.0 photo --user your-photostation-user --output photos/ http://diskstation/photo
+docker run --rm -ti -v $(pwd):/dsdl schnatterer/dsdl:2.0.0 audio --user  your-photostation-user --output /dsdl http://diskstation/photo
 ```
+
+Make sure uid/gid `1000` are allowed to write into current folder.
 
 ## Node.js
 

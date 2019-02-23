@@ -1,15 +1,22 @@
 # Define node version for all stages
-FROM node:10.14.2-alpine as node
+FROM node:10.15.1-alpine as node
 
 FROM node as build
 
-ADD . /
-RUN apk add --update yarn \
-    && yarn install
+COPY . /
+RUN apk add --update yarn
+RUN yarn install
+
+RUN mkdir -p dist/dsdl
+RUN mv node_modules /dist
+RUN mv src /dist/
 
 FROM node
 
-ADD src /dsdl
-COPY --from=build /node_modules /node_modules
+COPY --from=build  --chown=node:node  /dist /
+WORKDIR dsdl
 
-ENTRYPOINT ["node", "/dsdl/cli/dsdl.js"]
+# No need to run as root!
+USER node
+
+ENTRYPOINT ["node", "/src/cli/dsdl.js"]

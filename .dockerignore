@@ -1,0 +1,7 @@
+# Ignore all
+**
+# Whiteliste
+!package.json
+!yarn.lock
+!src
+!test

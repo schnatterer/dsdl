@@ -105,13 +105,12 @@ class Downloader {
             }
         });
 
-        this.listsToDownload.forEach(list => {
-            if (!this.stats.listsDownloaded.includes(list)) {
-                console.log(`WARNING: Selected ${this.listType} "${list}" not found on disk station`)
-            }
-        });
-
-        return Promise.all(promises)
+        return Promise.all(promises).then(() =>
+            this.listsToDownload.forEach(list => {
+                if (!this.stats.listsDownloaded.includes(list)) {
+                    console.log(`WARNING: Selected ${this.listType} "${list}" not found on disk station`)
+                }
+            }));
     }
 
     allListsSelected() {

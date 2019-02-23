@@ -20,7 +20,7 @@
   "devDependencies": {
     "jest": "^22.4.3",
     "jest-sonar-reporter": "^2.0.0",
-    "nexe": "^2.0.0-rc.26",
+    "nexe": "^2.0.0-rc.34",
     "nock": "^9.2.6",
     "memfs": "2.9.0"
   },

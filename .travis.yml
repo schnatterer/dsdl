@@ -21,7 +21,6 @@ install:
 
 script:
   - yarn test
-  - yarn package
   - sonar-scanner
   - docker build --no-cache -t dsdl .
   # Do some basic sanity checks with the container

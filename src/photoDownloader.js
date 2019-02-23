@@ -1,49 +1,25 @@
 const FormData = require('form-data');
-const DownloadService = require('./downloadService.js');
+const Downloader = require('./downloader.js');
 
-class PhotoDownloader {
+class PhotoDownloader extends Downloader {
 
     constructor(params) {
 
-        this.listType = 'tag';
+        super({
+            ...params,
+            listType: 'tag',
+            authUrl: 'auth.php',
+            fetchListsUrl: 'tag.php',
+            fetchListUrl: 'photo.php',
+            fetchFileUrl: 'download.php'
+        });
 
         if (params.folderStructure === 'server') {
             // If it is possible to get path (album?) of photo, we should just implement it in findRelativePath() and
             // Remove this block
             throw "folderStructure 'server' not supported for photos. "
         }
-
-        this.downloadService = new DownloadService({
-            url : params.url,
-            user: params.user,
-            output: params.output,
-            folderStructure: params.folderStructure,
-
-            listsToDownload: params.tags,
-
-            listType: this.listType,
-
-            authUrl: 'auth.php',
-            createAuthBody: this.createAuthBody,
-
-            fetchListsUrl: 'tag.php',
-            createFetchListsBody: this.createFetchListsBody,
-            findListInListsResponse: this.findListInListsResponse,
-
-            fetchListUrl: 'photo.php',
-            createFetchListBody: this.createFetchListBody,
-            findFilesInListResponse: this.findFilesInListResponse,
-
-            findRelativePath: this.findRelativePath,
-
-            fetchFileUrl: 'download.php',
-            createFetchFileBody: this.createFetchFileBody
-        })
     }
-
-    downloadAllFiles(password) {
-        return this.downloadService.downloadAllFiles(password);
-    };
 
     createAuthBody(username, password) {
 

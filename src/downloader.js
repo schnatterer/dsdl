@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const promisePipe = require('promisepipe');
 
-class DownloadService {
+class Downloader {
 
     constructor(params) {
 
@@ -13,23 +13,14 @@ class DownloadService {
         this.listsToDownload = params.listsToDownload;
         this.user = params.user;
 
-
         this.listType = params.listType;
         this.authUrl = params.authUrl;
-        this.createAuthBody = params.createAuthBody;
 
         this.fetchListsUrl = params.fetchListsUrl;
-        this.createFetchListsBody = params.createFetchListsBody;
-        this.findListInListsResponse = params.findListInListsResponse;
 
         this.fetchListUrl = params.fetchListUrl;
-        this.createFetchListBody = params.createFetchListBody;
-        this.findFilesInListResponse = params.findFilesInListResponse;
-
-        this.findRelativePath = params.findRelativePath;
 
         this.fetchFileUrl = params.fetchFileUrl;
-        this.createFetchFileBody = params.createFetchFileBody;
 
         this.stats = {
             filesTotal : 0,
@@ -142,7 +133,7 @@ class DownloadService {
             this.stats.filesTotal++;
 
             const destinationFilePath = this.createDestinationPathDependingOnFolderStructure(file, list);
-            this.createFolderIfNotExists(DownloadService.extractPath(destinationFilePath));
+            this.createFolderIfNotExists(Downloader.extractPath(destinationFilePath));
 
             if (fs.existsSync(destinationFilePath)) {
                 console.log(`Skipping file, because it already exists: ${destinationFilePath}`);
@@ -165,14 +156,14 @@ class DownloadService {
     createDestinationPathDependingOnFolderStructure(file, list) {
         let destinationFilePath;
         if (this.folderStructure === 'flat') {
-            destinationFilePath = `${this.output}/${DownloadService.extractFilename(this.findRelativePath(file))}`;
+            destinationFilePath = `${this.output}/${Downloader.extractFilename(this.findRelativePath(file))}`;
         } else if (this.folderStructure === 'server') {
             destinationFilePath = `${this.output}/${this.findRelativePath(file)}`;
         } else {
             if (this.folderStructure !== 'list') {
                 console.log(`FolderStructure not set, assuming "list".`)
             }
-            destinationFilePath = `${this.output}/${list.name}/${DownloadService.extractFilename(this.findRelativePath(file))}`;
+            destinationFilePath = `${this.output}/${list.name}/${Downloader.extractFilename(this.findRelativePath(file))}`;
         }
         return destinationFilePath;
     }
@@ -264,6 +255,34 @@ class DownloadService {
             return curDir;
         }, initDir);
     }
+
+    createAuthBody() {
+        throw new TypeError("Abstract method called");
+    }
+
+    createFetchListsBody() {
+        throw new TypeError("Abstract method called");
+    }
+
+    findListInListsResponse() {
+        throw new TypeError("Abstract method called");
+    }
+
+    createFetchListBody() {
+        throw new TypeError("Abstract method called");
+    }
+
+    findFilesInListResponse() {
+        throw new TypeError("Abstract method called");
+    }
+
+    findRelativePath() {
+        throw new TypeError("Abstract method called");
+    }
+
+    createFetchFileBody() {
+        throw new TypeError("Abstract method called");
+    }
 }
 
-module.exports = DownloadService;
+module.exports = Downloader;

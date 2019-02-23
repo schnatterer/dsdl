@@ -1,45 +1,20 @@
 // Needed for node < 10
 const URLSearchParams = require('url').URLSearchParams;
-const DownloadService = require('./downloadService.js');
+const Downloader = require('./downloader.js');
 
-class AudioDownloader {
+class AudioDownloader extends Downloader {
 
     constructor(params) {
 
-        this.listType = 'playlist';
-        this.folderStructure = params.folderStructure;
-
-        this.downloadService = new DownloadService({
-            url : params.url,
-            user: params.user,
-            output: params.output,
-            folderStructure: params.folderStructure,
-
-            listsToDownload: params.playlists,
-
-            listType: this.listType,
-
+        super({
+           ...params,
+            listType: 'playlist',
             authUrl: 'auth.cgi',
-            createAuthBody: this.createAuthBody,
-
             fetchListsUrl: 'AudioStation/playlist.cgi',
-            createFetchListsBody: this.createFetchListsBody,
-            findListInListsResponse: this.findListInListsResponse,
-
             fetchListUrl: 'AudioStation/playlist.cgi',
-            createFetchListBody: this.createFetchListBody,
-            findFilesInListResponse: this.findFilesInListResponse,
-
-            findRelativePath: this.findRelativePath,
-
-            fetchFileUrl: 'AudioStation/download.cgi',
-            createFetchFileBody: this.createFetchFileBody
-        })
+            fetchFileUrl: 'AudioStation/download.cgi'
+        });
     }
-
-    downloadAllFiles(password) {
-        return this.downloadService.downloadAllFiles(password);
-    };
 
     findListInListsResponse(responseJson) {
         return responseJson.data.playlists;

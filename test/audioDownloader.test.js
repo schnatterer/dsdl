@@ -64,8 +64,8 @@ describe("Songs & Playlists", () => {
         nock.cleanAll();
         mockAuthResponse(200, {success: true});
 
-        downloader.downloadService.output = expectedOutputFolder;
-        downloader.downloadService.listsToDownload = [];
+        downloader.output = expectedOutputFolder;
+        downloader.listsToDownload = [];
 
         vol.reset();
         vol.mkdirpSync(path.resolve(__dirname, "", expectedOutputFolder));
@@ -75,7 +75,7 @@ describe("Songs & Playlists", () => {
 
         test('playlist folder', async () => {
             playlists[0].songs.push(songs[1]);
-            downloader.downloadService.listsToDownload = [playlists[0].name];
+            downloader.listsToDownload = [playlists[0].name];
             vol.reset();
             mockSuccessfulSongDownload(songs);
             mockSuccessfulPlaylistResponse(playlists);
@@ -95,7 +95,7 @@ describe("Songs & Playlists", () => {
             mockSuccessfulPlaylistResponse(playlists);
 
             mockSuccessfulSongDownload(songs);
-            downloader.downloadService.folderStructure = 'flat';
+            downloader.folderStructure = 'flat';
 
             const stats = await downloader.downloadAllFiles(password);
 
@@ -111,7 +111,7 @@ describe("Songs & Playlists", () => {
             mockSuccessfulPlaylistResponse(playlists);
 
             mockSuccessfulSongDownload(songs);
-            downloader.downloadService.folderStructure = 'server';
+            downloader.folderStructure = 'server';
 
             const stats = await downloader.downloadAllFiles(password);
 
@@ -186,7 +186,7 @@ describe("Songs & Playlists", () => {
 
             const expectedPlaylist = playlists[0];
 
-            downloader.downloadService.listsToDownload = [expectedPlaylist.name];
+            downloader.listsToDownload = [expectedPlaylist.name];
 
             const stats = await downloader.downloadAllFiles(password);
 
@@ -205,7 +205,7 @@ describe("Songs & Playlists", () => {
             mockSuccessfulSongDownload(songs);
             mockSuccessfulPlaylistResponse(playlists);
 
-            downloader.downloadService.listsToDownload = ['not existing'];
+            downloader.listsToDownload = ['not existing'];
 
             const stats = await downloader.downloadAllFiles(password);
 
@@ -265,8 +265,8 @@ describe("Songs & Playlists", () => {
                 url: baseUrl,
                 user: 'ignored'
             });
-            downloader.downloadService.output = expectedOutputFolder;
-            downloader.downloadService.listsToDownload = [];
+            downloader.output = expectedOutputFolder;
+            downloader.listsToDownload = [];
 
 
             mockSuccessfulSongDownload(songs);

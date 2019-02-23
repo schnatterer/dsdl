@@ -63,8 +63,8 @@ describe("Photos & Tags", () => {
         nock.cleanAll();
         mockAuthResponse(200, {success: true});
 
-        downloader.downloadService.output = expectedOutputFolder;
-        downloader.downloadService.listsToDownload = [];
+        downloader.output = expectedOutputFolder;
+        downloader.listsToDownload = [];
 
         vol.reset();
         vol.mkdirpSync(path.resolve(__dirname, "", expectedOutputFolder));
@@ -74,7 +74,7 @@ describe("Photos & Tags", () => {
 
         test('tag folder', async () => {
             tags[0].photos.push(photos[1]);
-            downloader.downloadService.listsToDownload = [tags[0].name];
+            downloader.listsToDownload = [tags[0].name];
             vol.reset();
             mockSuccessfulPhotoDownload(photos);
             mockSuccessfulTagResponse(tags);
@@ -94,7 +94,7 @@ describe("Photos & Tags", () => {
             mockSuccessfulTagResponse(tags);
 
             mockSuccessfulPhotoDownload(photos);
-            downloader.downloadService.folderStructure = 'flat';
+            downloader.folderStructure = 'flat';
 
             const stats = await downloader.downloadAllFiles(password);
 
@@ -110,7 +110,7 @@ describe("Photos & Tags", () => {
             mockSuccessfulTagResponse(tags);
 
             mockSuccessfulPhotoDownload(photos);
-            downloader.downloadService.folderStructure = 'server';
+            downloader.folderStructure = 'server';
 
             const stats = await downloader.downloadAllFiles(password);
 
@@ -186,7 +186,7 @@ describe("Photos & Tags", () => {
 
             const expectedTag = tags[0];
 
-            downloader.downloadService.listsToDownload = [expectedTag.name];
+            downloader.listsToDownload = [expectedTag.name];
 
             const stats = await downloader.downloadAllFiles(password);
 
@@ -205,7 +205,7 @@ describe("Photos & Tags", () => {
             mockSuccessfulPhotoDownload(photos);
             mockSuccessfulTagResponse(tags);
 
-            downloader.downloadService.listsToDownload = ['not existing'];
+            downloader.listsToDownload = ['not existing'];
 
             const stats = await downloader.downloadAllFiles(password);
 

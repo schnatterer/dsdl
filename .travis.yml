@@ -1,6 +1,10 @@
 language: node_js
 
-node_js: '9.5.0'
+# Keep in sync with Dockerfile
+node_js: '10.15.1'
+
+services:
+  - docker
 
 addons:
   sonarqube:
@@ -19,4 +23,6 @@ script:
   - yarn test
   - yarn package
   - sonar-scanner
-
+  - docker build --no-cache -t dsdl .
+  # Do some basic sanity checks with the container
+  - echo $(docker run --rm dsdl audio --user someuser -o /dsdl http://diskstation/photo) | grep Password

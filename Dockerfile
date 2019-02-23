@@ -1,4 +1,5 @@
 # Define node version for all stages
+# Keep in sync with .travis.yml
 FROM node:10.15.1-alpine as node
 
 FROM node as build

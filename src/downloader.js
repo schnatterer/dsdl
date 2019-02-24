@@ -99,7 +99,7 @@ class Downloader {
                         // Process error right away, because otherwise Promise.all() chain breaks, not waiting for
                         // successful promises to resolve
                         // Stats have been updated in the functions above
-                        console.log(`Error processing list: ${list}: ${e}`)
+                        console.log(`Error processing list ${list.name}: ${e}`)
                     });
                 promises.push(promise)
             }
@@ -108,7 +108,7 @@ class Downloader {
         return Promise.all(promises).then(() =>
             this.listsToDownload.forEach(list => {
                 if (!this.stats.listsDownloaded.includes(list)) {
-                    console.log(`WARNING: Selected ${this.listType} "${list}" not found on disk station`)
+                    console.log(`WARNING: Selected ${this.listType} "${list}" not found on disk station or errored`)
                 }
             }));
     }
@@ -123,7 +123,7 @@ class Downloader {
             return this.processFiles(this.findFilesInListResponse(responseJson), list);
         } else {
             this.stats.listsFailed++;
-            throw `Fetching ${this.listType} "${list.name}" returned success=false`
+            throw `Fetching ${this.listType} "${list.name}" returned success=false. Response: ${JSON.stringify(responseJson)}.`
         }
     }
 

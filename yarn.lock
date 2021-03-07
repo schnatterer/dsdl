@@ -3349,7 +3349,7 @@ natural-compare@^1.4.0:
   resolved "https://registry.yarnpkg.com/natural-compare/-/natural-compare-1.4.0.tgz#4abebfeed7541f2c27acfb29bdbbd15c8d5ba4f7"
   integrity sha1-Sr6/7tdUHywnrPspvbvRXI1bpPc=
 
-nexe@^3.3.3:
+nexe@^3.3.7:
   version "3.3.7"
   resolved "https://registry.yarnpkg.com/nexe/-/nexe-3.3.7.tgz#1727af28347bfc10239887667f7c5dfbc5367839"
   integrity sha512-guAZKlY6UZcovzvuYjo7Hy7mx52Uq5f284aPeDVN2TjR2/jkhEHgnKMxBc9ECmknEvHoABgk6rYDG92q+J30sQ==

@@ -1,8 +1,12 @@
 const {compile} = require('nexe');
 
 // See https://github.com/nexe/nexe/releases
-// Keep in sync with Dockerfile and .travis.yml
-let nodeVersion = '10.15.1';
+// Keep in sync with Dockerfile and .github/workflows/build.yaml
+// Building with node 14 results in error on runtime:
+// Error parsing /dist/node_modules/read/package.json: Unexpected end of JSON input
+ //let nodeVersion = '14.15.3';
+// Latest 12.x version available for nexe
+let nodeVersion = '12.16.2';
 let platforms = ['linux-x64', 'windows-x64', 'mac-x64'];
 
 //  Create specific binaries like so: yarn package alpine-x64

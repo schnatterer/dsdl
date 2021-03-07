@@ -12,7 +12,8 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-node@v2
         with:
-          node-version: '10'
+          # Keep in sync with Dockerfile and createBinaries.js
+          node-version: '12'
       - run: yarn install
       - run: yarn test
       - uses: sonarsource/sonarcloud-github-action@master

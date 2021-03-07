@@ -1,6 +1,6 @@
 # Define node version for all stages
 # Keep in sync with .github/workflows/build.yaml & createBinaries.js
-FROM node:12.16.3-slim as node
+FROM node:14.15.3-slim as node
 
 FROM node as build
 

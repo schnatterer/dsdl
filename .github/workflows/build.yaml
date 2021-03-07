@@ -13,7 +13,7 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           # Keep in sync with Dockerfile and createBinaries.js
-          node-version: '12'
+          node-version: '14'
       - run: yarn install
       - run: yarn test
       - uses: sonarsource/sonarcloud-github-action@master

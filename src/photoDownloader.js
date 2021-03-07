@@ -1,4 +1,3 @@
-const FormData = require('form-data');
 const Downloader = require('./downloader.js');
 
 class PhotoDownloader extends Downloader {
@@ -28,7 +27,7 @@ class PhotoDownloader extends Downloader {
         // But: All other APIs seem not to work at this endpoint, only at http(s)://<dsm>/photo/webapi/
         // In turn http(s)://<dsm>/photo/webapi/auth.cgi yields HTTP 405 - Method not allowed
         // So: Use Photo Station's very own auth API and Endpoint 🙄
-        let form = new FormData();
+        let form = new URLSearchParams();
         form.append('api', 'SYNO.PhotoStation.Auth');
         form.append('method', 'login');
         form.append('version', '1');
@@ -51,7 +50,7 @@ class PhotoDownloader extends Downloader {
     }
 
     createFetchListsBody() {
-        let form = new FormData();
+        let form = new URLSearchParams();
         form.append('type', 'desc');
         form.append('sort_by', 'title');
         form.append('sort_direction', 'asc');
@@ -67,7 +66,7 @@ class PhotoDownloader extends Downloader {
     }
 
     createFetchListBody(tag) {
-        let form = new FormData();
+        let form = new URLSearchParams();
         form.append('filter_tag', tag.id);
         form.append('sort_by', 'filename');
         form.append('sort_direction', 'asc');
@@ -83,7 +82,7 @@ class PhotoDownloader extends Downloader {
     }
 
     createFetchFileBody(photo) {
-        let form = new FormData();
+        let form = new URLSearchParams();
         form.append('id', photo.id);
         form.append('method', 'getphoto');
         form.append('api', 'SYNO.PhotoStation.Download');

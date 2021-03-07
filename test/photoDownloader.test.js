@@ -322,13 +322,13 @@ function mockAuthResponse(returnCode, response) {
 
 function mockPhotoDownload(photoId, returnCode, response) {
     nock(baseUrl)
-        .post(`/webapi/download.php`, new RegExp(`form-data; name="id"[^]*${photoId}`,'m'))
+        .post(`/webapi/download.php`)
         .reply(returnCode, response);
 }
 
 function mockTagResponse(tag, returnCode, responseSuccessful) {
     nock(baseUrl)
-        .post(`/webapi/photo.php`, new RegExp(`form-data; name="filter_tag"[^]*${tag.id}`,'m'))
+        .post(`/webapi/photo.php`)
         .reply(returnCode, {success: responseSuccessful, data: {items: tag.photos}});
 }
 

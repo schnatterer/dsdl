@@ -6,6 +6,7 @@ const path = require('path');
 
 const baseUrl = 'http://diskstation';
 const expectedCookie = 'myCookie';
+const expectedErrorCode = 42
 
 let downloader;
 const password = 'dontCare';
@@ -18,15 +19,15 @@ beforeEach(() => {
     downloader = new AudioDownloader(program);
 });
 
-describe("Authentication", () => {1
+describe("Authentication", () => {
 
     test('unsuccessful auth', () => {
-        mockAuthResponse(200, {success: false});
+        mockAuthResponse(200, {success: false, error: { code: expectedErrorCode}});
 
         expect.assertions(1);
 
         return expect(downloader.downloadAllFiles(password))
-            .rejects.toEqual('Authentication failed');
+            .rejects.toEqual(`Authentication failed. Returned success=false. error code ${expectedErrorCode}`);
     });
 
     test('auth returns non-2xx code', () => {
@@ -285,12 +286,12 @@ describe("Songs & Playlists", () => {
         });
 
         test('unsuccessful request', () => {
-            mockFetchedPlaylists([], 200, false);
+            mockFetchedPlaylists([], 200, false, expectedErrorCode);
 
             expect.assertions(1);
 
             return downloader.downloadAllFiles(password)
-                .catch(e => expect(e).toEqual("Fetching all playlists returned success=false"));
+                .catch(e => expect(e).toEqual(`Fetching all playlists returned success=false. error code ${expectedErrorCode}`));
         });
 
         test('returns non-2xx code', () => {
@@ -397,18 +398,28 @@ function mockSongDownload(songId, returnCode, response) {
         .reply(returnCode, response);
 }
 
-function mockPlaylistResponse(playlist, returnCode, responseSuccessful) {
+function mockPlaylistResponse(playlist, returnCode, responseSuccessful, errorCode = '') {
+    const body = {success: responseSuccessful, data: {playlists: [{name: playlist.name, additional: {songs: playlist.songs}}]}};
+    if (errorCode) {
+        body.error = {}
+        body.error.code = errorCode
+    }
     nock(baseUrl)
         .post('/webapi/AudioStation/playlist.cgi', function (body) {
             return body.includes(`id=${playlist.id}`);
         })
-        .reply(returnCode, {success: responseSuccessful, data: {playlists: [{name: playlist.name, additional: {songs: playlist.songs}}]}});
+        .reply(returnCode, body);
 }
 
-function mockFetchedPlaylists(playlists, returnCode, responseSuccessful) {
+function mockFetchedPlaylists(playlists, returnCode, responseSuccessful, errorCode = '') {
+    const body = {success: responseSuccessful, data: {playlists: playlists}};
+    if (errorCode) {
+        body.error = {}
+        body.error.code = errorCode
+    }
     nock(baseUrl)
         .post('/webapi/AudioStation/playlist.cgi', function (body) {
             return body.includes(`method=list`);
         })
-        .reply(returnCode, {success: responseSuccessful, data: {playlists: playlists}});
+        .reply(returnCode, body);
 }

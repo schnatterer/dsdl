@@ -14,7 +14,6 @@ class AudioDownloader extends Downloader {
            ...params,
             listsToDownload: params.playlists,
             listType: 'playlist',
-            authUrl: 'auth.cgi',
             fetchListsUrl: 'AudioStation/playlist.cgi',
             fetchListUrl: 'AudioStation/playlist.cgi',
             fetchFileUrl: 'AudioStation/download.cgi'
@@ -61,19 +60,6 @@ class AudioDownloader extends Downloader {
             //return song.path.split('/').pop();
             return song.path
         }
-    }
-
-    createAuthBody(username, password) {
-
-        let form = new URLSearchParams();
-        form.append('api', 'SYNO.API.Auth');
-        form.append('method', 'Login');
-        form.append('version', '1');
-        form.append('account', username);
-        form.append('passwd', password);
-        form.append('session', 'AudioStation');
-
-        return form;
     }
 
     createFetchListsBody() {

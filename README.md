@@ -44,7 +44,7 @@ Use it like so:
     ```
 * audio
     ```bash
-    ./dsdl audio --user your-user --output music/ http://diskstation:5000/audio
+    ./dsdl audio --user your-user --output music/ http://diskstation:5000/
     ```
 
 You will be prompted for the password.

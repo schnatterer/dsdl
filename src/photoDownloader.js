@@ -24,6 +24,10 @@ class PhotoDownloader extends Downloader {
 
     createAuthBody(username, password) {
 
+        // The photo app seems to be a bit special - it could authenticate against http(s)://<dsm>:5000/webapi/auth.cgi
+        // But: All other APIs seem not to work at this endpoint, only at http(s)://<dsm>/photo/webapi/
+        // In turn http(s)://<dsm>/photo/webapi/auth.cgi yields HTTP 405 - Method not allowed
+        // So: Use Photo Station's very own auth API and Endpoint 🙄
         let form = new FormData();
         form.append('api', 'SYNO.PhotoStation.Auth');
         form.append('method', 'login');

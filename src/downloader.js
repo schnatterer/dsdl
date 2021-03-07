@@ -14,7 +14,7 @@ class Downloader {
         this.user = params.user;
 
         this.listType = params.listType;
-        this.authUrl = params.authUrl;
+        this.authUrl = params.authUrl || 'auth.cgi';
 
         this.fetchListsUrl = params.fetchListsUrl;
 
@@ -40,7 +40,7 @@ class Downloader {
         return this.auth(this.user, password)
             .then(() => this.fetchAndProcessLists())
             .then(() => this.stats)
-    };
+    }
 
     auth(username, password) {
         const url = `${this.baseUrl}/${this.authUrl}`;
@@ -52,7 +52,7 @@ class Downloader {
                 return this.validatedToJson(res, "auth");
             }).then(responseJson => {
                 if (!responseJson.success) {
-                    throw "Authentication failed"
+                    throw `Authentication failed. Returned success=false. error code ${responseJson.error.code}`
                 }
             })
     }
@@ -75,7 +75,7 @@ class Downloader {
         if (responseJson.success) {
             return this.processLists(this.findListInListsResponse(responseJson));
         } else {
-            throw `Fetching all ${this.listType}s returned success=false`
+            throw `Fetching all ${this.listType}s returned success=false. error code ${responseJson.error.code}`
         }
     }
 
@@ -255,8 +255,25 @@ class Downloader {
         }, initDir);
     }
 
-    createAuthBody() {
-        throw new TypeError("Abstract method called");
+    createAuthBody(username, password) {
+
+        // https://nodejs.org/api/url.html#url_class_urlsearchparams
+        // Content-Type: application/x-www-form-urlencoded;charset=UTF-8
+        let form = new URLSearchParams();
+        //let form = new FormData();
+        // Content-Type: multipart/form-data;
+        form.append('api', 'SYNO.API.Auth');
+        form.append('method', 'login');
+        form.append('version', '3');
+        form.append('account', username);
+        form.append('passwd', password);
+
+        //form.append('session', 'AudioStation');
+
+        // We could use a session ID instead of a cookie in future
+        //form.append('format', 'sid');
+
+        return form;
     }
 
     createFetchListsBody() {

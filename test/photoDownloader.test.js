@@ -7,6 +7,7 @@ const path = require('path');
 
 const baseUrl = 'http://diskstation';
 const expectedCookie = 'myCookie';
+const expectedErrorCode = 42
 
 let downloader;
 const password = 'dontCare';
@@ -22,12 +23,12 @@ beforeEach(() => {
 describe("Authentication", () => {
 
     test('unsuccessful auth', () => {
-        mockAuthResponse(200, {success: false});
+        mockAuthResponse(200, {success: false, error: { code: expectedErrorCode}});
 
         expect.assertions(1);
 
         return expect(downloader.downloadAllFiles(password))
-            .rejects.toEqual('Authentication failed');
+            .rejects.toEqual(`Authentication failed. Returned success=false. error code ${expectedErrorCode}`);
     });
 
     test('auth returns non-2xx code', () => {
@@ -276,12 +277,12 @@ describe("Photos & Tags", () => {
         });
 
         test('unsuccessful request', () => {
-            mockFetchedTags([], 200, false);
+            mockFetchedTags([], 200, false, expectedErrorCode);
 
             expect.assertions(1);
 
             return downloader.downloadAllFiles(password)
-                .catch(e => expect(e).toEqual("Fetching all tags returned success=false"));
+                .catch(e => expect(e).toEqual(`Fetching all tags returned success=false. error code ${expectedErrorCode}`));
         });
 
         test('returns non-2xx code', () => {
@@ -331,8 +332,13 @@ function mockTagResponse(tag, returnCode, responseSuccessful) {
         .reply(returnCode, {success: responseSuccessful, data: {items: tag.photos}});
 }
 
-function mockFetchedTags(tags, returnCode, responseSuccessful) {
+function mockFetchedTags(tags, returnCode, responseSuccessful, errorCode = '') {
+    const body = {success: responseSuccessful, data: {tags: tags}};
+    if (errorCode) {
+        body.error = {}
+        body.error.code = errorCode
+    }
     nock(baseUrl)
         .post(`/webapi/tag.php`)
-        .reply(returnCode, {success: responseSuccessful, data: {tags: tags}});
+        .reply(returnCode, body);
 }

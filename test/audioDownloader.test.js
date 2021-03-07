@@ -55,11 +55,13 @@ describe("Songs & Playlists", () => {
     beforeEach(() => {
 
         songs = [
-            song(1, 'first/path', 'one.mp3', 'fake-binary-data-1'), song(2, 'other/path', 'two.mp3', 'fake-binary-data-too')
+            song('1', 'first/path', 'one.mp3', 'fake-binary-data-1'),
+            song('2', 'other/path', 'two.mp3', 'fake-binary-data-too')
         ];
 
         playlists = [
-            playlist(1, 'our-playlist', [songs[0]]), playlist(2, 'the other playlist', [songs[1]])
+            playlist('1', 'our-playlist', [songs[0]]),
+            playlist('2', 'the other playlist', [songs[1]])
         ];
 
         nock.cleanAll();
@@ -392,34 +394,29 @@ function mockAuthResponse(returnCode, response) {
 
 function mockSongDownload(songId, returnCode, response) {
     nock(baseUrl)
-        .post('/webapi/AudioStation/download.cgi', function (body) {
-            return body.includes(`songs=${songId}`);
-        })
+        .post('/webapi/AudioStation/download.cgi', body => body.songs === songId)
         .reply(returnCode, response);
 }
 
 function mockPlaylistResponse(playlist, returnCode, responseSuccessful, errorCode = '') {
-    const body = {success: responseSuccessful, data: {playlists: [{name: playlist.name, additional: {songs: playlist.songs}}]}};
+    const expectedBody = {success: responseSuccessful, data: {playlists: [{name: playlist.name, additional: {songs: playlist.songs}}]}};
     if (errorCode) {
-        body.error = {}
-        body.error.code = errorCode
+        expectedBody.error = {}
+        expectedBody.error.code = errorCode
     }
     nock(baseUrl)
-        .post('/webapi/AudioStation/playlist.cgi', function (body) {
-            return body.includes(`id=${playlist.id}`);
-        })
-        .reply(returnCode, body);
+        .post('/webapi/AudioStation/playlist.cgi',
+                body => body.id === playlist.id)
+        .reply(returnCode, expectedBody);
 }
 
 function mockFetchedPlaylists(playlists, returnCode, responseSuccessful, errorCode = '') {
-    const body = {success: responseSuccessful, data: {playlists: playlists}};
+    const expectedBody = {success: responseSuccessful, data: {playlists: playlists}};
     if (errorCode) {
-        body.error = {}
-        body.error.code = errorCode
+        expectedBody.error = {}
+        expectedBody.error.code = errorCode
     }
     nock(baseUrl)
-        .post('/webapi/AudioStation/playlist.cgi', function (body) {
-            return body.includes(`method=list`);
-        })
-        .reply(returnCode, body);
+        .post('/webapi/AudioStation/playlist.cgi', body => body.method === 'list')
+        .reply(returnCode, expectedBody);
 }

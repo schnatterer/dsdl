@@ -1,7 +1,7 @@
 dsdl
 ====
 
-[![Build Status](https://travis-ci.org/schnatterer/dsdl.svg?branch=develop)](https://travis-ci.org/schnatterer/dsdl)
+[![Build Status](https://img.shields.io/github/workflow/status/schnatterer/dsdl/Build)](https://github.com/schnatterer/dsdl/actions)
 [![schnatterer/dsdl@docker hub](https://images.microbadger.com/badges/image/schnatterer/dsdl.svg)](https://hub.docker.com/r/schnatterer/dsdl/)
 [![QGate](https://sonarcloud.io/api/project_badges/measure?project=info.schnatterer.dsdl&metric=alert_status)](https://sonarcloud.io/dashboard?id=info.schnatterer.dsdl)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=info.schnatterer.dsdl&metric=coverage)](https://sonarcloud.io/dashboard?id=info.schnatterer.dsdl)

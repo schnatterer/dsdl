@@ -34,6 +34,15 @@ describe('CLI', () => {
         expect(command.tags).toEqual([]);
     });
 
+    test('Minimal mandatory params for foto command', () => {
+        setArgv(['foto', ...requiredArgs]);
+        cli();
+        let command = getCommand('foto');
+        validateRequiredParams(command);
+
+        expect(command.tags).toEqual([]);
+    });
+
     test('Minimal mandatory params for audio command', () => {
         setArgv(['audio', ...requiredArgs]);
         cli();

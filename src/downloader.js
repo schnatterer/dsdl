@@ -232,7 +232,7 @@ class Downloader {
         };
     }
 
-    // We need to create parent folders here as well, which is diffucult with node :-[
+    // We need to create parent folders here as well, which is difficult with node :-[
     // With node > 10 we can use fs.mkdir('dir', {recursive: true})
     // Taken from https://stackoverflow.com/a/40686853
     createFolderIfNotExists(targetDir, { isRelativeToScript = false } = {}) {

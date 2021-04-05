@@ -46,7 +46,18 @@ class PhotoDownloader extends Downloader {
     }
 
     findRelativePath(photo) {
-        return photo.info.name;
+        let baseName = photo.info.name;
+        if (photo.type === 'video') {
+            let ending
+            if (photo.additional && photo.additional.video_codec && photo.additional.video_codec.container) {
+                ending = photo.additional.video_codec.container;
+            } else {
+                console.log(`WARNING: Could not find file ending for video. Defaulting to mp4`)
+                ending = 'mp4'
+            }
+            baseName = `${baseName}.${ending}`
+        }
+        return baseName;
     }
 
     createFetchListsBody() {
@@ -83,10 +94,15 @@ class PhotoDownloader extends Downloader {
 
     createFetchFileBody(photo) {
         let form = new URLSearchParams();
+        if (photo.type === 'video') {
+            form.append('method', 'getvideo');
+        } else {
+            form.append('method', 'getphoto');
+        }
         form.append('id', photo.id);
-        form.append('method', 'getphoto');
         form.append('api', 'SYNO.PhotoStation.Download');
         form.append('version', '1');
+        form.append('download', true);
 
         return form;
     }

@@ -55,10 +55,12 @@ describe("Photos & Tags", () => {
 
     beforeEach(() => {
         photos = [
-            photo(1, 'one.jpg', 'fake-binary-data-1'), photo(2, 'two.png', 'fake-binary-data-too')
+            photo(1, 'one.jpg', 'fake-binary-data-1'),
+            photo(2, 'video', 'fake-binary-data-too', 'video', {additional: {video_codec: { container: 'mkv'}}})
         ];
         tags = [
-            tag(1, 'our-tag', [photos[0]]), tag(2, 'the other tag', [photos[1]])
+            tag(1, 'our-tag', [photos[0]]),
+            tag(2, 'the other tag', [photos[1]])
         ];
 
         nock.cleanAll();
@@ -86,10 +88,11 @@ describe("Photos & Tags", () => {
 
             const stats = await downloader.downloadAllFiles(password);
 
-            photos.forEach((photo) =>
-                expect(vol.readFileSync(`/output/dir/${tags[0].name}/${photo.info.name}`, {encoding: 'ascii'})).toEqual(photo.data));
-            expect(stats.filesTotal).toBe(photos.length);
-            expect(stats.filesDownloaded).toBe(photos.length);
+            expect(vol.readFileSync(`/output/dir/${tags[0].name}/one.jpg`, {encoding: 'ascii'})).toEqual(photos[0].data);
+            expect(vol.readFileSync(`/output/dir/${tags[0].name}/video.mkv`, {encoding: 'ascii'})).toEqual(photos[1].data);
+
+            expect(stats.filesTotal).toBe(tags[0].photos.length);
+            expect(stats.filesDownloaded).toBe(tags[0].photos.length);
             expect(stats.filesSkipped).toBe(0);
         });
 
@@ -102,8 +105,9 @@ describe("Photos & Tags", () => {
 
             const stats = await downloader.downloadAllFiles(password);
 
-            photos.forEach((photo) =>
-                expect(vol.readFileSync(`/output/dir/${photo.info.name}`, {encoding: 'ascii'})).toEqual(photo.data));
+            expect(vol.readFileSync(`/output/dir/one.jpg`, {encoding: 'ascii'})).toEqual(photos[0].data);
+            expect(vol.readFileSync(`/output/dir/video.mkv`, {encoding: 'ascii'})).toEqual(photos[1].data);
+
             expect(stats.filesTotal).toBe(photos.length);
             expect(stats.filesDownloaded).toBe(photos.length);
             expect(stats.filesSkipped).toBe(0);
@@ -119,8 +123,9 @@ describe("Photos & Tags", () => {
             const stats = await downloader.downloadAllFiles(password);
 
             // Note: For now we photos do not support server folder, because it's difficult if not impossible to query
-            photos.forEach((photo) =>
-                expect(vol.readFileSync(`/output/dir/${photo.info.name}`, {encoding: 'ascii'})).toEqual(photo.data));
+            expect(vol.readFileSync(`/output/dir/one.jpg`, {encoding: 'ascii'})).toEqual(photos[0].data);
+            expect(vol.readFileSync(`/output/dir/video.mkv`, {encoding: 'ascii'})).toEqual(photos[1].data);
+
             expect(stats.filesTotal).toBe(photos.length);
             expect(stats.filesDownloaded).toBe(photos.length);
             expect(stats.filesSkipped).toBe(0);
@@ -152,8 +157,7 @@ describe("Photos & Tags", () => {
 
             const stats = await downloader.downloadAllFiles(password);
 
-            [photos[1]].forEach((photo) =>
-                expect(vol.readFileSync(`/output/dir/${tags[1].name}/${photo.info.name}`, {encoding: 'ascii'})).toEqual(photo.data));
+            expect(vol.readFileSync(`/output/dir/${tags[1].name}/video.mkv`, {encoding: 'ascii'})).toEqual(photos[1].data);
             expect(stats.filesTotal).toBe(2);
             expect(stats.filesDownloaded).toBe(1);
             expect(stats.filesSkipped).toBe(0);
@@ -171,9 +175,8 @@ describe("Photos & Tags", () => {
 
             const stats = await downloader.downloadAllFiles(password);
 
-            tags.forEach((tag) =>
-                tag.photos.forEach((photo) =>
-                    expect(vol.readFileSync(`/output/dir/${tag.name}/${photo.info.name}`, {encoding: 'ascii'})).toEqual(photo.data)));
+            expect(vol.readFileSync(`/output/dir/${tags[0].name}/one.jpg`, {encoding: 'ascii'})).toEqual(photos[0].data);
+            expect(vol.readFileSync(`/output/dir/${tags[1].name}/video.mkv`, {encoding: 'ascii'})).toEqual(photos[1].data);
 
             expect(stats.listsTotal).toBe(tags.length);
             expect(stats.filesTotal).toBe(2);
@@ -294,6 +297,31 @@ describe("Photos & Tags", () => {
                 .catch(e => expect(e).toEqual("response not OK, when fetching all tags. Status: 500"));
         });
     });
+
+    describe("Fetch Videos", () => {
+
+        test('Default video file ending', async () => {
+            vol.reset();
+            const videos = [
+                photo(1, 'video1', 'bin1', 'video', {additional: {video_codec: {} }}),
+                photo(2, 'video2', 'bin2', 'video', {additional: {} }),
+                photo(3, 'video3', 'bin3', 'video')
+            ];
+            const videoTags = [tag(1, 'our-tag', videos)];
+            mockSuccessfulPhotoDownload(videos);
+            mockSuccessfulTagResponse(videoTags);
+            mockFetchedTags(videoTags, 200, true);
+
+            const stats = await downloader.downloadAllFiles(password);
+
+            videos.forEach((video) =>
+                expect(vol.readFileSync(`/output/dir/${tags[0].name}/${video.info.name}.mp4`, {encoding: 'ascii'})).toEqual(video.data));
+
+            expect(stats.filesTotal).toBe(3);
+            expect(stats.filesSkipped).toBe(0);
+            expect(stats.filesDownloaded).toBe(3);
+        });
+    });
 });
 
 function mockSuccessfulPhotoDownload(photos) {
@@ -303,9 +331,9 @@ function mockSuccessfulTagResponse(tags) {
     tags.forEach((tag) => mockTagResponse(tag, 200, true));
 }
 
-function photo(id, name, data) {
+function photo(id, name, data, type = 'photo', extra = {}) {
     // Note: Data is not a part of the productive object, just makes testing simpler
-    return {id: id, info: {name: name}, data: data}
+    return {id: id, info: {name: name}, type: type, data: data, ...extra }
 }
 
 function tag(id, name, photos) {

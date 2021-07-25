@@ -14,7 +14,7 @@ function cli(program) {
     let downloader;
 
     program
-        .version('3.0.2-SNAPSHOT', '-v, --version');
+        .version('3.0.3-RC1', '-v, --version');
 
     setCommonParams(program
         .command('photo')

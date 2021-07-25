@@ -1,12 +1,18 @@
 {
   "name": "dsdl",
   "version": "3.0.3-RC1",
-  "description": "",
+  "description": "DiskStation DownLoader - gets files from Synology DiskStation Manager",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/schnatterer/dsdl.git"
+  },
   "main": "src/cli/dsdl.js",
+  "bin": "src/cli/dsdl.js",
   "scripts": {
     "package": "node createBinaries.js",
     "test": "jest"
   },
+  "files": [ "src/**" ],
   "author": "Johannes Schnatterer",
   "license": "MIT",
   "dependencies": {

@@ -333,7 +333,7 @@ function mockAuthResponse(returnCode, response) {
 function mockPhotoDownload(photoId, returnCode, response) {
     nock(baseUrl)
         // Parse itemid_ "[1]" to 1
-        .post('/webapi/entry.cgi', body => body.api === 'SYNO.Foto.Download' && JSON.parse(body.item_id)[0] === photoId)
+        .post('/webapi/entry.cgi', body => body.api === 'SYNO.FotoTeam.Download' && JSON.parse(body.item_id)[0] === photoId)
         .reply(function (uri, requestBody) {
             // use normal function in that case, as arrow functions are using enclosing scope for this binding.
             expect(requestBody).toContain(`_sid=${expectedSid}`);
@@ -382,7 +382,7 @@ function mockTagResponse(tag, returnCode, responseSuccessful) {
         "success": true
     }*/
     nock(baseUrl)
-        .post(`/webapi/entry.cgi`,body => body.api === '"SYNO.Foto.Browse.Item"')
+        .post(`/webapi/entry.cgi`,body => body.api === 'SYNO.FotoTeam.Browse.Item')
         .reply(returnCode, body);
 }
 
@@ -417,6 +417,6 @@ function mockFetchedTags(tags, returnCode, responseSuccessful, errorCode = '') {
         body.error.code = errorCode
     }
     nock(baseUrl)
-        .post(`/webapi/entry.cgi`,body => body.api === '"SYNO.Foto.Browse.GeneralTag"')
+        .post(`/webapi/entry.cgi`,body => body.api === 'SYNO.FotoTeam.Browse.GeneralTag')
         .reply(returnCode, body);
 }

@@ -4,7 +4,6 @@ const URLSearchParams = require('url').URLSearchParams;
 class FotoDownloader extends Downloader {
 
     constructor(params) {
-
         super({
             ...params,
             listsToDownload: params.tags,
@@ -39,8 +38,8 @@ class FotoDownloader extends Downloader {
 
         form.append('offset', '0');
         form.append('limit', '100');
-        form.append('api', '"SYNO.Foto.Browse.GeneralTag"');
-        form.append('method', '"list"');
+        form.append('api', 'SYNO.FotoTeam.Browse.GeneralTag');
+        form.append('method', 'list');
         form.append('version', '1');
 
         return form;
@@ -50,7 +49,7 @@ class FotoDownloader extends Downloader {
         let form = new URLSearchParams();
 
         form.append('general_tag_id', tag.id);
-        form.append('api', '"SYNO.Foto.Browse.Item"');
+        form.append('api', 'SYNO.FotoTeam.Browse.Item');
         form.append('method', 'list');
         form.append('sort_by', 'filename');
         form.append('version', '1');
@@ -68,7 +67,7 @@ class FotoDownloader extends Downloader {
         let form = new URLSearchParams();
         form.append('item_id', `[${photo.id}]`);
         form.append('method', 'download');
-        form.append('api', 'SYNO.Foto.Download');
+        form.append('api', 'SYNO.FotoTeam.Download');
         form.append('version', '1');
         form.append('force_download', 'true');
 

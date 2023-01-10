@@ -16,7 +16,7 @@ function cli(program) {
     let downloader;
 
     program
-        .version('3.1.0', '-v, --version')
+        .version('3.1.1-RC1', '-v, --version')
         .showHelpAfterError();
 
     setCommonParams(program

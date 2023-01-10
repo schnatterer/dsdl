@@ -1,9 +1,9 @@
-const commander = require('commander');
+const { Command } = require('commander');
 
 let program;
 
 beforeEach(() => {
-    program = new commander.Command();
+    program = new Command();
 
     jest.mock('read');
     const read = require('read');
@@ -21,8 +21,9 @@ describe('CLI', () => {
     test('No command', () => {
         setArgv(requiredArgs);
         program.help = jest.fn();
-        cli();
-        expect(program.help.mock.calls.length).toBe(1);
+        expect( () => {
+            cli();
+        }).toThrow();
     });
 
     test('Minimal mandatory params for photo command', () => {
@@ -67,7 +68,7 @@ describe('CLI', () => {
     function getCommand(requiredCommandName) {
         for (const command of program.commands) {
             if (command._name === requiredCommandName) {
-                return command;
+                return command.opts();
             }
         }
         throw `Command ${requiredCommandName} not found`
@@ -81,6 +82,7 @@ describe('CLI', () => {
     }
 
     function cli() {
+        program.exitOverride()
         // We could test the read() part like so
         // jest.mock('read');
         // const read = require('read');

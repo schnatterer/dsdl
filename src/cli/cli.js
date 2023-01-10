@@ -1,4 +1,6 @@
 const read = require('read');
+const { Command } = require('commander');
+
 const startDate = new Date();
 
 const AudioDownloader = require('../audioDownloader.js');
@@ -8,20 +10,21 @@ const FotoDownloader = require('../fotoDownloader.js');
 function cli(program) {
 
     if (!program) {
-        program = require('commander');
+        program = new Command();
     }
 
     let downloader;
 
     program
-        .version('3.0.3-RC1', '-v, --version');
+        .version('3.0.3-RC1', '-v, --version')
+        .showHelpAfterError();
 
     setCommonParams(program
         .command('photo')
         .description('Download from photo station'))
         .option('-t, --tags [value]', 'Comma separated list of specific tags to download. If not set, instead loads all tags', commaSeparatedMultiple, [])
-        .action(function (env, options) {
-            validateRequiredParams(options);
+        .action(function (url, options) {
+            validateRequiredParams(url, options);
             downloader = new PhotoDownloader(options);
         });
 
@@ -29,8 +32,8 @@ function cli(program) {
         .command('foto')
         .description('Download from Synology Photos (DSM7)'))
         .option('-t, --tags [value]', 'Comma separated list of specific tags to download. If not set, instead loads all tags', commaSeparatedMultiple, [])
-        .action(function (env, options) {
-            validateRequiredParams(options);
+        .action(function (url, options) {
+            validateRequiredParams(url, options);
             downloader = new FotoDownloader(options);
         });
 
@@ -39,8 +42,8 @@ function cli(program) {
         .description('Download from audio station'))
         .option('-p, --playlists [value]', 'Comma separated list of specific playlists to download. If not set, instead loads all playlists', commaSeparatedMultiple, [])
         .option('-m, --m3u [value]', 'Create m3u playlist files for each downloaded playlist', false)
-        .action(function (env, options) {
-            validateRequiredParams(options);
+        .action(function (url, options) {
+            validateRequiredParams(url, options);
             downloader = new AudioDownloader(options);
         });
 
@@ -77,12 +80,11 @@ function setCommonParams(program) {
             `\'list\' - creates subdirs for each list.\n${cliIntendion}` +
             '\'server\' - creates same folder structure as on server',
             'list')
-        .arguments('<url>').action(function (url) {
-            program.url = url
-        })
+        .arguments('<url>')
 }
 
-function validateRequiredParams(options) {
+function validateRequiredParams(url, options) {
+    options.url = url
     if (!options.user || !options.output || !options.url || !/^(flat|list|server)$/g.test(options.folderStructure)) {
         options.help()
     }

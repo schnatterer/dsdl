@@ -16,7 +16,7 @@
   "author": "Johannes Schnatterer",
   "license": "MIT",
   "dependencies": {
-    "commander": "^4.1.1",
+    "commander": "^9.5.0",
     "node-fetch": "^2.6.7",
     "promisepipe": "^3.0.0",
     "read": "^1.0.7",

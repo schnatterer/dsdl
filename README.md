@@ -1,8 +1,7 @@
 dsdl
 ====
 
-[![Build Status](https://img.shields.io/github/workflow/status/schnatterer/dsdl/Build)](https://github.com/schnatterer/dsdl/actions)
-[![schnatterer/dsdl@docker hub](https://images.microbadger.com/badges/image/schnatterer/dsdl.svg)](https://hub.docker.com/r/schnatterer/dsdl/)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/schnatterer/dsdl/build.yaml?branch=main)](https://github.com/schnatterer/dsdl/actions)
 [![QGate](https://sonarcloud.io/api/project_badges/measure?project=info.schnatterer.dsdl&metric=alert_status)](https://sonarcloud.io/dashboard?id=info.schnatterer.dsdl)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=info.schnatterer.dsdl&metric=coverage)](https://sonarcloud.io/dashboard?id=info.schnatterer.dsdl)
 [![TecDebt](https://sonarcloud.io/api/project_badges/measure?project=info.schnatterer.dsdl&metric=sqale_index)](https://sonarcloud.io/dashboard?id=info.schnatterer.dsdl)
@@ -83,8 +82,9 @@ dsdl --version
 
 ## Docker
 
+[See quay.io](https://quay.io/repository/schnatterer/dsdl)
 ```bash
-docker run --rm -ti -v $(pwd):/dsdl schnatterer/dsdl \
+docker run --rm -ti -v $(pwd):/dsdl quay.io/schnatterer/dsdl \
   audio --user your-photostation-user --output /dsdl http://diskstation/photo
 ```
 

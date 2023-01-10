@@ -30,6 +30,7 @@ class FotoDownloader extends Downloader {
     }
 
     findRelativePath(photo) {
+        // This also works for video
         return photo.filename;
     }
 
@@ -66,7 +67,7 @@ class FotoDownloader extends Downloader {
         // force_download=true&item_id=[3]&api=SYNO.Foto.Download&method=download&version=1
         let form = new URLSearchParams();
         form.append('item_id', `[${photo.id}]`);
-        form.append('method', 'download');
+        form.append( 'method', 'download');
         form.append('api', 'SYNO.FotoTeam.Download');
         form.append('version', '1');
         form.append('force_download', 'true');

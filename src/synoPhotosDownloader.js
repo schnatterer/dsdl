@@ -1,7 +1,7 @@
 const Downloader = require('./downloader.js');
 const URLSearchParams = require('url').URLSearchParams;
 
-class FotoDownloader extends Downloader {
+class SynoPhotosDownloader extends Downloader {
 
     constructor(params) {
         super({
@@ -76,4 +76,4 @@ class FotoDownloader extends Downloader {
     }
 }
 
-module.exports = FotoDownloader;
+module.exports = SynoPhotosDownloader;

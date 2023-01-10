@@ -1,6 +1,6 @@
 const Downloader = require('./downloader.js');
 
-class PhotoDownloader extends Downloader {
+class DsPhotoDownloader extends Downloader {
 
     constructor(params) {
 
@@ -108,4 +108,4 @@ class PhotoDownloader extends Downloader {
     }
 }
 
-module.exports = PhotoDownloader;
+module.exports = DsPhotoDownloader;

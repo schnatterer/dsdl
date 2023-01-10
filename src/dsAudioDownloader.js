@@ -6,7 +6,7 @@ const m3u = require('m3u')
 const Downloader = require('./downloader.js');
 
 
-class AudioDownloader extends Downloader {
+class DsAudioDownloader extends Downloader {
 
     constructor(params) {
 
@@ -109,4 +109,4 @@ class AudioDownloader extends Downloader {
     }
 }
 
-module.exports = AudioDownloader;
+module.exports = DsAudioDownloader;

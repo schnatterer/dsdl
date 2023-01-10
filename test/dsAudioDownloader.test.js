@@ -1,6 +1,6 @@
 const nock = require('nock');
 jest.mock('fs', () => require('memfs').fs);
-const AudioDownloader = require('../src/audioDownloader');
+const AudioDownloader = require('../src/dsAudioDownloader');
 const vol = require('memfs').vol;
 const path = require('path');
 

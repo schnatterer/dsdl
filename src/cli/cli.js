@@ -3,9 +3,9 @@ const { Command } = require('commander');
 
 const startDate = new Date();
 
-const AudioDownloader = require('../audioDownloader.js');
-const PhotoDownloader = require('../photoDownloader.js');
-const FotoDownloader = require('../fotoDownloader.js');
+const DsAudioDownloader = require('../dsAudioDownloader.js');
+const DsPhotoDownloader = require('../dsPhotoDownloader.js');
+const SynoPhotosDownloader = require('../synoPhotosDownloader.js');
 
 function cli(program) {
 
@@ -25,16 +25,17 @@ function cli(program) {
         .option('-t, --tags [value]', 'Comma separated list of specific tags to download. If not set, instead loads all tags', commaSeparatedMultiple, [])
         .action(function (url, options) {
             validateRequiredParams(url, options);
-            downloader = new PhotoDownloader(options);
+            downloader = new DsPhotoDownloader(options);
         });
 
     setCommonParams(program
-        .command('foto')
+        .command('photos')
+        .alias('foto')
         .description('Download from Synology Photos (DSM7)'))
         .option('-t, --tags [value]', 'Comma separated list of specific tags to download. If not set, instead loads all tags', commaSeparatedMultiple, [])
         .action(function (url, options) {
             validateRequiredParams(url, options);
-            downloader = new FotoDownloader(options);
+            downloader = new SynoPhotosDownloader(options);
         });
 
     setCommonParams(program
@@ -44,7 +45,7 @@ function cli(program) {
         .option('-m, --m3u [value]', 'Create m3u playlist files for each downloaded playlist', false)
         .action(function (url, options) {
             validateRequiredParams(url, options);
-            downloader = new AudioDownloader(options);
+            downloader = new DsAudioDownloader(options);
         });
 
     program.parse(process.argv);

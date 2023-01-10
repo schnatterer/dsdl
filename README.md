@@ -9,7 +9,7 @@ dsdl
 DiskStation Downloader (formerly photostationtagdownloader / pstd)
 
 Downloads files from [Synology DiskStation Manager](https://www.synology.com/dsm). Supports downloading
-* photos (all photos of a tag / "smart album") via [Photo Station](https://www.synology.com/dsm/feature/photo_station) and
+* photos (all photos of a tag / "smart album") via [Synology Photos](https://www.synology.com/dsm/feature/photos) / [Photo Station](https://www.synology.com/dsm/feature/photo_station) and
 * audio (all songs of a playlist) via [Audio Station](https://www.synology.com/dsm/feature/audio_station)
 
 
@@ -29,9 +29,9 @@ Downloads files from [Synology DiskStation Manager](https://www.synology.com/dsm
   - [Clone repo](#clone-repo)
 - [Usage](#usage)
     - [General parameters](#general-parameters)
-    - [DS Photo](#ds-photo)
     - [DS Audio](#ds-audio)
     - [Synology Photos](#synology-photos)
+    - [DS Photo](#ds-photo)
     - [Non-interactive password](#non-interactive-password)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -40,13 +40,13 @@ Downloads files from [Synology DiskStation Manager](https://www.synology.com/dsm
 
 ## Photos
 
-* Set tags (i.e. [IPTC keywords](http://www.iptc.org/std/photometadata/documentation/userguide/index.htm#!Documents/generalimagecontent.htm)) for photos, grouping them into "smart albums"
+* Set tags (i.e. [IPTC keywords](http://www.iptc.org/std/photometadata/documentation/userguide/index.htm#!Documents/generalimagecontent.htm)) for photos, grouping them into "smart albums" (DS photo)
 * dsdl downloads those for you. For some reasons this cannot be achieved using the Photo Station web app, nor native Android or Windows apps.
 
 ## Audio
 
 * Group your songs into playlists
-* dsdl downloads those for you. You can also do this via the web UI (where the playlist is zipped) or with [DS audio](https://www.synology.com/dsm/feature/audio_station#download) but it does not seem to work reliably and it cannot be scripted 😉
+* dsdl downloads those for you. You can also do this via the web UI (where the playlist is zipped) or with [DS audio](https://www.synology.com/dsm/feature/audio_station#download) but it does not seem to work reliably, and it cannot be scripted 😉
 
 # Installation
 
@@ -83,6 +83,7 @@ dsdl --version
 ## Docker
 
 [See quay.io](https://quay.io/repository/schnatterer/dsdl)
+
 ```bash
 docker run --rm -ti -v $(pwd):/dsdl quay.io/schnatterer/dsdl \
   audio --user your-photostation-user --output /dsdl http://diskstation/photo
@@ -103,17 +104,17 @@ node src/cli/dsdl.js photo --version
 
 # Usage
 
-* DS Photo (DSM < 7)
-```shell
-dsdl photo --user your-diskstsation-user --output photos/ http://diskstation/photo
-```
 * DS Audio
 ```shell
 dsdl audio --user your-user --output music/ http://diskstation:5000/
 ```
 * Synology Photos (DSM 7+) -
 ```shell
-dsdl foto --user your-user --output music/ http://diskstation:5000/
+dsdl photos --user your-user --output music/ http://diskstation:5000/
+```
+* DS Photo (DSM < 7)
+```shell
+dsdl photo --user your-diskstsation-user --output photos/ http://diskstation/photo
 ```
 
 You will be prompted for the password.
@@ -126,12 +127,6 @@ You will be prompted for the password.
   * `server` - creates same folder structure as on server (Works only for audio).  
     Or is there a way to get the album for a photo via the Synology Photo Station / Foto API?
 
-### DS Photo
-
-* `--tags` - downloads specific tags. Note that tags containing spaces must be quoted. Multiple tags can either be specified
-  * comma separated (e.g. `--tags "tag one",numberTwo`) or
-  * by using multiple parameters (e.g `--tags "tag one" --tags numberTwo`)
-
 ### DS Audio
 
 * `--playlists` - downloads specific playlists. Note that playlists containing spaces must be quoted. Multiple playlists can either be specified
@@ -142,6 +137,12 @@ You will be prompted for the password.
 ### Synology Photos
 
 Note that for synology photos right now a maximum of 5000 photos can be downloaded for a single tag
+
+* `--tags` - downloads specific tags. Note that tags containing spaces must be quoted. Multiple tags can either be specified
+  * comma separated (e.g. `--tags "tag one",numberTwo`) or
+  * by using multiple parameters (e.g `--tags "tag one" --tags numberTwo`)
+
+### DS Photo
 
 * `--tags` - downloads specific tags. Note that tags containing spaces must be quoted. Multiple tags can either be specified
   * comma separated (e.g. `--tags "tag one",numberTwo`) or

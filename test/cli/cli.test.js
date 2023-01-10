@@ -35,10 +35,19 @@ describe('CLI', () => {
         expect(command.tags).toEqual([]);
     });
 
-    test('Minimal mandatory params for foto command', () => {
+    test('Minimal mandatory params for photos command', () => {
+        setArgv(['photos', ...requiredArgs]);
+        cli();
+        let command = getCommand('photos');
+        validateRequiredParams(command);
+
+        expect(command.tags).toEqual([]);
+    });
+
+    test('Minimal mandatory params for foto alias', () => {
         setArgv(['foto', ...requiredArgs]);
         cli();
-        let command = getCommand('foto');
+        let command = getCommand('photos');
         validateRequiredParams(command);
 
         expect(command.tags).toEqual([]);

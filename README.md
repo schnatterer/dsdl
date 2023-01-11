@@ -1,7 +1,8 @@
 dsdl
 ====
 
-[![Build Status](https://img.shields.io/github/actions/workflow/status/schnatterer/dsdl/build.yaml?branch=main)](https://github.com/schnatterer/dsdl/actions)
+[![Build](https://github.com/schnatterer/dsdl/actions/workflows/build.yaml/badge.svg)](https://github.com/schnatterer/dsdl/actions/workflows/build.yaml)
+[![NPM Version](http://img.shields.io/npm/v/dsdl.svg?style=flat)](https://www.npmjs.org/package/dsdl)
 [![QGate](https://sonarcloud.io/api/project_badges/measure?project=info.schnatterer.dsdl&metric=alert_status)](https://sonarcloud.io/dashboard?id=info.schnatterer.dsdl)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=info.schnatterer.dsdl&metric=coverage)](https://sonarcloud.io/dashboard?id=info.schnatterer.dsdl)
 [![TecDebt](https://sonarcloud.io/api/project_badges/measure?project=info.schnatterer.dsdl&metric=sqale_index)](https://sonarcloud.io/dashboard?id=info.schnatterer.dsdl)
